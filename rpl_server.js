@@ -26,19 +26,47 @@ if (!UPSTASH_URL || !UPSTASH_TOKEN) {
 }
 
 /* ── NFL team roster (Season 1 default seed) ──
-   Used to pre-populate state.teams on first boot so the admin panel has every
-   team ready to edit immediately, with no need to manually add each one. */
-const NFL_TEAMS = [
-  "ARI","ATL","BAL","BUF","CAR","CHI","CIN","CLE","DAL","DEN","DET","GB",
-  "HOU","IND","JAX","KC","LV","LAC","LAR","MIA","MIN","NE","NO","NYG","NYJ",
-  "PHI","PIT","SF","SEA","TB","TEN","WSH",
-];
+   Used to pre-populate state.teams ONE TIME on first boot only, so the admin
+   panel has every team ready to edit immediately instead of starting empty.
+   This is a static, hard-coded starting point — nothing here is ever
+   re-fetched or re-synced after boot. Every field (name, conference, logo,
+   roles) is 100% editable — and, going forward, ONLY editable — through the
+   Admin Panel's Teams tab. There is no Roblox group/API integration of any
+   kind: team metadata never updates itself, it only changes when an admin
+   types a change in and clicks Save. */
+const NFL_TEAM_INFO = {
+  ARI:{name:"Arizona Cardinals",conference:"NFC"}, ATL:{name:"Atlanta Falcons",conference:"NFC"},
+  BAL:{name:"Baltimore Ravens",conference:"AFC"},  BUF:{name:"Buffalo Bills",conference:"AFC"},
+  CAR:{name:"Carolina Panthers",conference:"NFC"}, CHI:{name:"Chicago Bears",conference:"NFC"},
+  CIN:{name:"Cincinnati Bengals",conference:"AFC"},CLE:{name:"Cleveland Browns",conference:"AFC"},
+  DAL:{name:"Dallas Cowboys",conference:"NFC"},    DEN:{name:"Denver Broncos",conference:"AFC"},
+  DET:{name:"Detroit Lions",conference:"NFC"},     GB:{name:"Green Bay Packers",conference:"NFC"},
+  HOU:{name:"Houston Texans",conference:"AFC"},    IND:{name:"Indianapolis Colts",conference:"AFC"},
+  JAX:{name:"Jacksonville Jaguars",conference:"AFC"}, KC:{name:"Kansas City Chiefs",conference:"AFC"},
+  LV:{name:"Las Vegas Raiders",conference:"AFC"},  LAC:{name:"Los Angeles Chargers",conference:"AFC"},
+  LAR:{name:"Los Angeles Rams",conference:"NFC"},  MIA:{name:"Miami Dolphins",conference:"AFC"},
+  MIN:{name:"Minnesota Vikings",conference:"NFC"}, NE:{name:"New England Patriots",conference:"AFC"},
+  NO:{name:"New Orleans Saints",conference:"NFC"}, NYG:{name:"New York Giants",conference:"NFC"},
+  NYJ:{name:"New York Jets",conference:"AFC"},     PHI:{name:"Philadelphia Eagles",conference:"NFC"},
+  PIT:{name:"Pittsburgh Steelers",conference:"AFC"},SF:{name:"San Francisco 49ers",conference:"NFC"},
+  SEA:{name:"Seattle Seahawks",conference:"NFC"},  TB:{name:"Tampa Bay Buccaneers",conference:"NFC"},
+  TEN:{name:"Tennessee Titans",conference:"AFC"},  WSH:{name:"Washington Commanders",conference:"NFC"},
+};
+const NFL_TEAMS = Object.keys(NFL_TEAM_INFO);
 function nflLogo(abb) { return `https://a.espncdn.com/i/teamlogos/nfl/500/${abb.toLowerCase()}.png`; }
+function blankRoles() { return { owner: "", gm: "", headCoach: "" }; }
 function seedRoster() {
   for (const abb of NFL_TEAMS) {
-    state.teams[abb] = { wins: 0, losses: 0, pct: "0.000", streak: "—", logo: nflLogo(abb) };
+    const info = NFL_TEAM_INFO[abb];
+    state.teams[abb] = {
+      wins: 0, losses: 0, pct: "0.000", streak: "—",
+      logo: nflLogo(abb),
+      name: info.name,
+      conference: info.conference,
+      roles: blankRoles(),
+    };
   }
-  console.log(`[RFL] Seeded roster with ${NFL_TEAMS.length} NFL teams for Season 1.`);
+  console.log(`[RFL] Seeded roster with ${NFL_TEAMS.length} NFL teams for Season 1 (one-time default — fully editable from here on).`);
 }
 
 let state = {
@@ -167,10 +195,30 @@ function rebuildStandings() {
 function ensureTeam(abb, logo) {
   if (!abb) return;
   if (!state.teams[abb]) {
-    state.teams[abb] = { wins: 0, losses: 0, pct: "0.000", streak: "—", logo: logo || "" };
+    // Minimal placeholder only — name/conference/roles are intentionally left
+    // blank rather than guessed, so the admin notices it needs to be filled
+    // in on the Teams tab instead of silently inheriting made-up data.
+    state.teams[abb] = {
+      wins: 0, losses: 0, pct: "0.000", streak: "—",
+      logo: logo || "", name: "", conference: "", roles: blankRoles(),
+    };
   } else if (logo) {
     state.teams[abb].logo = logo;
   }
+}
+
+const VALID_CONFERENCES = new Set(["AFC", "NFC"]);
+function sanitizeStr(v, maxLen) {
+  if (typeof v !== "string") return "";
+  return v.trim().slice(0, maxLen || 60);
+}
+function sanitizeRoles(r) {
+  const src = (r && typeof r === "object") ? r : {};
+  return {
+    owner:     sanitizeStr(src.owner, 60),
+    gm:        sanitizeStr(src.gm, 60),
+    headCoach: sanitizeStr(src.headCoach, 60),
+  };
 }
 
 function updateRecord(winnerABB, loserABB) {
@@ -518,20 +566,31 @@ function handleSSE(req, res) {
 async function handleTeamOverride(req, res) {
   // Manual standings edits are admin-only. The regular SECRET ("console" /
   // bot-poster credential) is intentionally NOT accepted here — only ADMIN_SECRET.
+  // This endpoint edits an EXISTING team's record and/or metadata. It never
+  // reaches out to Roblox or any external source — every value it writes
+  // comes straight from the request body the admin panel sent.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   let body;
   try { body = await readBody(req); }
   catch (e) { return sendJSON(res, 400, { error: "Bad JSON" }); }
 
-  const { abb, wins, losses, streak, logo } = body;
+  const { abb: rawAbb, wins, losses, streak, logo, name, conference, roles } = body;
+  const abb = sanitizeStr(rawAbb, 8).toUpperCase();
   if (!abb) return sendJSON(res, 422, { error: "Missing abb" });
+  if (conference !== undefined && conference !== "" && !VALID_CONFERENCES.has(conference)) {
+    return sendJSON(res, 422, { error: "conference must be AFC or NFC" });
+  }
 
   ensureTeam(abb, logo);
   const t = state.teams[abb];
-  if (wins   !== undefined) t.wins   = Math.max(0, parseInt(wins,   10) || 0);
-  if (losses !== undefined) t.losses = Math.max(0, parseInt(losses, 10) || 0);
-  if (streak !== undefined) t.streak = streak;
-  if (logo   !== undefined) t.logo   = logo;
+  if (wins       !== undefined) t.wins       = Math.max(0, parseInt(wins, 10) || 0);
+  if (losses     !== undefined) t.losses     = Math.max(0, parseInt(losses, 10) || 0);
+  if (streak     !== undefined) t.streak     = sanitizeStr(streak, 10) || "—";
+  if (logo       !== undefined) t.logo       = sanitizeStr(logo, 500);
+  if (name       !== undefined) t.name       = sanitizeStr(name, 80);
+  if (conference !== undefined) t.conference = conference;
+  if (roles      !== undefined) t.roles      = sanitizeRoles(roles);
+  if (!t.roles) t.roles = blankRoles();
 
   const total = t.wins + t.losses;
   t.pct = total > 0 ? (t.wins / total).toFixed(3) : "0.000";
@@ -540,8 +599,85 @@ async function handleTeamOverride(req, res) {
   await saveState();
   broadcast("standings", buildPublicPayload());
 
-  console.log(`[RFL] Team override: ${abb} → ${t.wins}W-${t.losses}L logo=${t.logo ? "✓" : "—"}`);
+  state.auditLog.unshift({
+    action: "team_edited", gameId: null, matchup: abb,
+    score: `${t.wins}W-${t.losses}L`, status: t.conference || "",
+    timestamp: new Date().toISOString(),
+  });
+  if (state.auditLog.length > 200) state.auditLog.length = 200;
+
+  console.log(`[RFL] Team edited: ${abb} → ${t.wins}W-${t.losses}L name="${t.name || ""}" conf=${t.conference || "—"} logo=${t.logo ? "✓" : "—"}`);
   return sendJSON(res, 200, { ok: true, team: { abb, ...t } });
+}
+
+async function handleAddTeam(req, res) {
+  // Creates a brand-new team from scratch. Admin-only, fully manual — the
+  // admin types in every field themselves. There is no lookup against
+  // Roblox groups, no bot import, nothing auto-filled beyond what's sent here.
+  if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
+  let body;
+  try { body = await readBody(req); }
+  catch (e) { return sendJSON(res, 400, { error: "Bad JSON" }); }
+
+  const abb  = sanitizeStr(body.abb, 8).toUpperCase();
+  const name = sanitizeStr(body.name, 80);
+  const conference = body.conference;
+
+  if (!abb)  return sendJSON(res, 422, { error: "Team abbreviation is required." });
+  if (!name) return sendJSON(res, 422, { error: "Team name is required." });
+  if (!VALID_CONFERENCES.has(conference)) return sendJSON(res, 422, { error: "Conference must be AFC or NFC." });
+  if (state.teams[abb]) return sendJSON(res, 409, { error: `Team "${abb}" already exists — edit it instead of adding it again.` });
+
+  state.teams[abb] = {
+    wins: 0, losses: 0, pct: "0.000", streak: "—",
+    logo: sanitizeStr(body.logo, 500),
+    name, conference,
+    roles: sanitizeRoles(body.roles),
+  };
+  state.lastUpdated = new Date().toISOString();
+
+  await saveState();
+  broadcast("standings", buildPublicPayload());
+
+  state.auditLog.unshift({
+    action: "team_added", gameId: null, matchup: `${abb} — ${name}`,
+    score: "0W-0L", status: conference, timestamp: new Date().toISOString(),
+  });
+  if (state.auditLog.length > 200) state.auditLog.length = 200;
+
+  console.log(`[RFL] Team added manually: ${abb} (${name}, ${conference})`);
+  return sendJSON(res, 200, { ok: true, team: { abb, ...state.teams[abb] } });
+}
+
+async function handleRemoveTeam(req, res) {
+  // Permanently deletes a team. Admin-only. Past game results that reference
+  // this abbreviation are left untouched in history, but the next standings
+  // rebuild will show it as an unnamed placeholder rather than silently
+  // resurrecting it — nothing is re-created from an external source.
+  if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
+  let body;
+  try { body = await readBody(req); }
+  catch (e) { return sendJSON(res, 400, { error: "Bad JSON" }); }
+
+  const abb = sanitizeStr(body.abb, 8).toUpperCase();
+  if (!abb) return sendJSON(res, 422, { error: "Missing abb" });
+  if (!state.teams[abb]) return sendJSON(res, 404, { error: `Team "${abb}" doesn't exist.` });
+
+  const removedName = state.teams[abb].name || abb;
+  delete state.teams[abb];
+  state.lastUpdated = new Date().toISOString();
+
+  await saveState();
+  broadcast("standings", buildPublicPayload());
+
+  state.auditLog.unshift({
+    action: "team_removed", gameId: null, matchup: `${abb} — ${removedName}`,
+    score: "—", status: "", timestamp: new Date().toISOString(),
+  });
+  if (state.auditLog.length > 200) state.auditLog.length = 200;
+
+  console.log(`[RFL] Team removed manually: ${abb} (${removedName})`);
+  return sendJSON(res, 200, { ok: true, abb });
 }
 
 function buildPublicPayload() {
@@ -682,6 +818,8 @@ const server = http.createServer(async (req, res) => {
   if (url === "/rpl/standings/add"      && method === "POST") return handleAddGame(req, res);
   if (url === "/rpl/standings/auditlog" && method === "GET")  return handleGetAuditLog(req, res);
   if (url === "/rpl/standings/team"     && method === "POST") return handleTeamOverride(req, res);
+  if (url === "/rpl/standings/team/add"    && method === "POST") return handleAddTeam(req, res);
+  if (url === "/rpl/standings/team/remove" && method === "POST") return handleRemoveTeam(req, res);
   if (url === "/rpl/refs"               && method === "GET")  return handleGetRefs(req, res);
   if (url === "/rpl/archive"            && method === "GET")  return handleGetArchive(req, res);
   if (url === "/rpl/archive"            && method === "POST") return handleSetArchive(req, res);

@@ -957,7 +957,7 @@ select.fc{
   <div id="admin-unlocked" class="hidden" style="display:none;flex-direction:column;flex:1;min-height:0;">
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="switchAdminTab('games',this)">Games</button>
-      <button class="admin-tab" onclick="switchAdminTab('edit',this)">Edit Standings</button>
+      <button class="admin-tab" onclick="switchAdminTab('teams',this)">Teams</button>
       <button class="admin-tab" onclick="switchAdminTab('void',this)">Void</button>
       <button class="admin-tab" onclick="switchAdminTab('remove',this)">Remove</button>
       <button class="admin-tab" onclick="switchAdminTab('season',this)">Season</button>
@@ -1012,26 +1012,75 @@ select.fc{
 
     <!-- VOID TAB -->
     <!-- EDIT STANDINGS TAB -->
-    <div id="atab-edit" class="admin-body-wrap hidden">
+    <div id="atab-teams" class="admin-body-wrap hidden">
+
+      <!-- MANUAL-ONLY NOTICE -->
       <div class="admin-section">
         <div class="admin-section-hd">
-          <div class="admin-section-icon blue">🛠</div>
+          <div class="admin-section-icon blue">✋</div>
           <div>
-            <div class="admin-section-label">Edit Team Record</div>
-            <div class="admin-section-desc">Manually set a team's wins, losses, streak, or logo. Overwrites whatever the auto-calculated record would be. Admin key required.</div>
+            <div class="admin-section-label">Fully Manual Roster</div>
+            <div class="admin-section-desc">Team names, conferences, logos, and roles are entered here by an admin only — nothing auto-syncs from Roblox or anywhere else. If it's not typed in below, it won't change.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEAM ROSTER LIST -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">🏈</div>
+          <div>
+            <div class="admin-section-label">Team Roster</div>
+            <div class="admin-section-desc">Every team currently in the system. Click Edit to load a team into the form below, or Remove to delete it permanently.</div>
           </div>
         </div>
         <div class="admin-section-body">
-          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Team ABB</div><input class="field-input" id="es-abb" placeholder="e.g. KC" maxlength="8" style="text-transform:uppercase" list="es-abb-list"><datalist id="es-abb-list"></datalist></div>
-          <div style="display:flex;gap:8px;margin-bottom:6px">
-            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Wins</div><input class="field-input" id="es-wins" type="number" min="0" placeholder="0"></div>
-            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Losses</div><input class="field-input" id="es-losses" type="number" min="0" placeholder="0"></div>
+          <input class="field-input" type="text" id="tm-search" placeholder="Search by name, abbreviation, or conference…" autocomplete="off" spellcheck="false" style="width:100%;margin-bottom:10px">
+          <div id="tm-list" style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <!-- ADD / EDIT TEAM FORM -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue" id="tm-form-icon">＋</div>
+          <div>
+            <div class="admin-section-label" id="tm-form-title">Add New Team</div>
+            <div class="admin-section-desc" id="tm-form-desc">Create a brand-new team. Every field is set manually — nothing is pulled from Roblox.</div>
           </div>
-          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Streak (optional, e.g. W3 / L2)</div><input class="field-input" id="es-streak" placeholder="leave blank to keep current"></div>
-          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Logo URL (optional)</div><input class="field-input" id="es-logo" placeholder="leave blank to keep current"></div>
-          <button class="gold-btn" id="es-load-btn" type="button" style="margin-bottom:6px;background:transparent;border:1px solid var(--b);color:var(--tx)">Load Current Record</button>
-          <button class="gold-btn" id="es-save-btn">Save Team Record</button>
-          <div class="panel-msg" id="es-msg"></div>
+        </div>
+        <div class="admin-section-body">
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Abbreviation</div><input class="field-input" id="tm-abb" placeholder="e.g. KC" maxlength="8" style="text-transform:uppercase"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Team Name</div><input class="field-input" id="tm-name" placeholder="e.g. Kansas City Chiefs"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Conference</div>
+            <select class="field-input" id="tm-conference">
+              <option value="">Select conference…</option>
+              <option value="AFC">AFC — American Football Conference</option>
+              <option value="NFC">NFC — National Football Conference</option>
+            </select>
+          </div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Logo URL</div><input class="field-input" id="tm-logo" placeholder="https://…"></div>
+
+          <div style="height:1px;background:var(--b);margin:12px 0"></div>
+          <div class="flbl" style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;">Roles (entered manually)</div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Owner</div><input class="field-input" id="tm-owner" placeholder="Roblox username"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">General Manager</div><input class="field-input" id="tm-gm" placeholder="Roblox username"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Head Coach</div><input class="field-input" id="tm-coach" placeholder="Roblox username"></div>
+
+          <div style="height:1px;background:var(--b);margin:12px 0"></div>
+          <div class="flbl" style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;">Record (optional override)</div>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Wins</div><input class="field-input" id="tm-wins" type="number" min="0" placeholder="0"></div>
+            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Losses</div><input class="field-input" id="tm-losses" type="number" min="0" placeholder="0"></div>
+          </div>
+          <div style="margin-bottom:12px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Streak (e.g. W3 / L2)</div><input class="field-input" id="tm-streak" placeholder="leave blank to keep current"></div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="gold-btn" id="tm-save-btn" style="flex:1;min-width:140px">Add Team</button>
+            <button class="gold-btn" id="tm-clear-btn" type="button" style="flex:0 0 auto;background:transparent;border:1px solid var(--b);color:var(--tx)">New Team</button>
+            <button class="danger-btn" id="tm-delete-btn" type="button" style="flex:0 0 auto;display:none">Delete Team</button>
+          </div>
+          <div class="panel-msg" id="tm-msg"></div>
         </div>
       </div>
     </div>
@@ -1170,7 +1219,9 @@ select.fc{
 // TODO: point this at wherever rpl_server.js is actually deployed (Render/Railway/etc — a
 // long-running Node process, NOT a Vercel serverless function, since it holds SSE connections).
 const CFG={API:'https://rflstandings.onrender.com/rpl/standings',REFS_API:'https://rflstandings.onrender.com/rpl/refs',POLL:30000};
-const logo=(url,abb)=>{if(NAMES[abb])return`https://a.espncdn.com/i/teamlogos/nfl/500/${abb.toLowerCase()}.png`;if(!url)return'';if(url.includes('roblox.com'))return'';return url.startsWith('http://')?'https://'+url.slice(7):url};
+// Logos are 100% manual — whatever the admin sets in the Teams tab is what
+// shows. No abbreviation ever auto-overrides a custom logo with a fetched one.
+const logo=(url,abb)=>{if(!url)return'';if(url.includes('roblox.com'))return'';return url.startsWith('http://')?'https://'+url.slice(7):url};
 const NAMES={ARI:'Arizona Cardinals',ATL:'Atlanta Falcons',BAL:'Baltimore Ravens',BUF:'Buffalo Bills',CAR:'Carolina Panthers',CHI:'Chicago Bears',CIN:'Cincinnati Bengals',CLE:'Cleveland Browns',DAL:'Dallas Cowboys',DEN:'Denver Broncos',DET:'Detroit Lions',GB:'Green Bay Packers',HOU:'Houston Texans',IND:'Indianapolis Colts',JAX:'Jacksonville Jaguars',KC:'Kansas City Chiefs',LV:'Las Vegas Raiders',LAC:'Los Angeles Chargers',LAR:'Los Angeles Rams',MIA:'Miami Dolphins',MIN:'Minnesota Vikings',NE:'New England Patriots',NO:'New Orleans Saints',NYG:'New York Giants',NYJ:'New York Jets',PHI:'Philadelphia Eagles',PIT:'Pittsburgh Steelers',SF:'San Francisco 49ers',SEA:'Seattle Seahawks',TB:'Tampa Bay Buccaneers',TEN:'Tennessee Titans',WSH:'Washington Commanders'};
 const EAST=new Set(['BUF','MIA','NE','NYJ','BAL','CIN','CLE','PIT','HOU','IND','JAX','TEN','DEN','KC','LV','LAC']); // AFC
 const WEST=new Set(['DAL','NYG','PHI','WSH','CHI','DET','GB','MIN','ATL','CAR','NO','TB','ARI','LAR','SF','SEA']); // NFC
@@ -1349,10 +1400,14 @@ document.getElementById('box-modal-bg').addEventListener('click',e=>{if(e.target
 
 /* ── STANDINGS ── */
 function flatToConfs(teams){
+  // Name and conference come from whatever the admin manually set for this
+  // team (server-stored). NAMES/EAST/WEST below are only a legacy fallback
+  // for teams that predate the Teams tab and haven't been edited yet.
   const e=[],w=[],o=[];
   for(const t of teams){
-    const ent={name:NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',logo:logo(t.logo,t.abb),streak:t.streak||'—'};
-    if(EAST.has(t.abb))e.push(ent);else if(WEST.has(t.abb))w.push(ent);else o.push(ent);
+    const conf=t.conference||(EAST.has(t.abb)?'AFC':WEST.has(t.abb)?'NFC':'');
+    const ent={name:t.name||NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',logo:logo(t.logo,t.abb),streak:t.streak||'—'};
+    if(conf==='AFC')e.push(ent);else if(conf==='NFC')w.push(ent);else o.push(ent);
   }
   return{eastern:e,western:[...w,...o]};
 }
@@ -1643,11 +1698,11 @@ function switchAdminTab(tab,btn){
   currentAdminTab=tab;
   document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  ['games','edit','void','remove','season','archive','tools'].forEach(t=>{
+  ['games','teams','void','remove','season','archive','tools'].forEach(t=>{
     document.getElementById(`atab-${t}`).classList.toggle('hidden',t!==tab);
   });
   if(tab==='tools')loadAuditLog();
-  if(tab==='edit')populateEditTeamList();
+  if(tab==='teams')renderTeamsList();
   if(tab==='archive')renderAdminArchiveList();
 }
 
@@ -1731,59 +1786,161 @@ document.getElementById('ag-btn').addEventListener('click',async()=>{
   finally{btn.disabled=false;btn.textContent='Add Game'}
 });
 
-/* ── EDIT STANDINGS (manual record override, admin-key only) ── */
-document.getElementById('es-abb').addEventListener('input',function(){this.value=this.value.toUpperCase()});
+/* ── TEAMS (fully manual add / edit / remove — admin-key only) ──
+   Team name, conference, logo, and roles are ONLY ever changed by an admin
+   typing into this form and hitting Save. Nothing here polls or imports from
+   Roblox or any other external source. */
+let tmMode='add', tmOriginalAbb=null;
+document.getElementById('tm-abb').addEventListener('input',function(){this.value=this.value.toUpperCase()});
 
-function populateEditTeamList(){
-  const dl=document.getElementById('es-abb-list');
-  if(!dl)return;
-  const abbs=(prevData&&prevData.standings)?prevData.standings.map(t=>t.abb):[];
-  dl.innerHTML=abbs.map(a=>`<option value="${a}">`).join('');
+function tmClearForm(){
+  tmMode='add';tmOriginalAbb=null;
+  document.getElementById('tm-form-icon').textContent='＋';
+  document.getElementById('tm-form-title').textContent='Add New Team';
+  document.getElementById('tm-form-desc').textContent='Create a brand-new team. Every field is set manually — nothing is pulled from Roblox.';
+  document.getElementById('tm-abb').value='';
+  document.getElementById('tm-abb').disabled=false;
+  document.getElementById('tm-name').value='';
+  document.getElementById('tm-conference').value='';
+  document.getElementById('tm-logo').value='';
+  document.getElementById('tm-owner').value='';
+  document.getElementById('tm-gm').value='';
+  document.getElementById('tm-coach').value='';
+  document.getElementById('tm-wins').value='';
+  document.getElementById('tm-losses').value='';
+  document.getElementById('tm-streak').value='';
+  document.getElementById('tm-save-btn').textContent='Add Team';
+  document.getElementById('tm-delete-btn').style.display='none';
+  clearPanelMsg('tm-msg');
+}
+document.getElementById('tm-clear-btn').addEventListener('click',tmClearForm);
+
+function tmLoadTeam(abb){
+  const t=prevData&&prevData.standings?prevData.standings.find(x=>x.abb===abb):null;
+  if(!t)return;
+  tmMode='edit';tmOriginalAbb=abb;
+  document.getElementById('tm-form-icon').textContent='✎';
+  document.getElementById('tm-form-title').textContent=`Editing ${abb}`;
+  document.getElementById('tm-form-desc').textContent='Update this team\u2019s info, roles, or record. Changes apply instantly and are still 100% manual.';
+  document.getElementById('tm-abb').value=abb;
+  document.getElementById('tm-abb').disabled=true;
+  document.getElementById('tm-name').value=t.name||'';
+  document.getElementById('tm-conference').value=t.conference||'';
+  document.getElementById('tm-logo').value=t.logo||'';
+  document.getElementById('tm-owner').value=t.roles?.owner||'';
+  document.getElementById('tm-gm').value=t.roles?.gm||'';
+  document.getElementById('tm-coach').value=t.roles?.headCoach||'';
+  document.getElementById('tm-wins').value=t.wins??0;
+  document.getElementById('tm-losses').value=t.losses??0;
+  document.getElementById('tm-streak').value=t.streak&&t.streak!=='—'?t.streak:'';
+  document.getElementById('tm-save-btn').textContent='Save Changes';
+  document.getElementById('tm-delete-btn').style.display='inline-flex';
+  clearPanelMsg('tm-msg');
+  document.getElementById('tm-abb').scrollIntoView({block:'center',behavior:'smooth'});
 }
 
-document.getElementById('es-load-btn').addEventListener('click',()=>{
-  clearPanelMsg('es-msg');
-  const abb=document.getElementById('es-abb').value.trim().toUpperCase();
-  if(!abb){showPanelMsg('es-msg','Enter a team ABB first.','error');return}
-  const t=prevData&&prevData.standings?prevData.standings.find(x=>x.abb===abb):null;
-  if(!t){showPanelMsg('es-msg',`No existing record for ${abb} — it will be created on save.`,'error');return}
-  document.getElementById('es-wins').value=t.wins??0;
-  document.getElementById('es-losses').value=t.losses??0;
-  document.getElementById('es-streak').value=t.streak&&t.streak!=='—'?t.streak:'';
-  document.getElementById('es-logo').value=t.logo||'';
-  showPanelMsg('es-msg',`Loaded current record for ${abb}.`,'success');
-});
+function renderTeamsList(){
+  const wrap=document.getElementById('tm-list');
+  if(!wrap)return;
+  const q=(document.getElementById('tm-search').value||'').trim().toLowerCase();
+  const teams=(prevData&&prevData.standings?[...prevData.standings]:[]).sort((a,b)=>(a.name||a.abb).localeCompare(b.name||b.abb));
+  const filtered=teams.filter(t=>{
+    if(!q)return true;
+    return(t.abb||'').toLowerCase().includes(q)||(t.name||'').toLowerCase().includes(q)||(t.conference||'').toLowerCase().includes(q);
+  });
+  if(!filtered.length){wrap.innerHTML='<div class="audit-empty">No teams found.</div>';return}
+  wrap.innerHTML=filtered.map(t=>{
+    const lg=logo(t.logo,t.abb);
+    const nameLabel=t.name||'<span style="color:var(--mu2)">Unnamed — needs setup</span>';
+    const confLabel=t.conference?`<span class="rbadge" style="background:var(--s3);color:var(--tx2)">${t.conference}</span>`:'<span class="rbadge" style="background:var(--red-dim);color:var(--red)">No conference</span>';
+    return`<div style="display:flex;align-items:center;gap:10px;border:1px solid var(--b);border-radius:8px;padding:9px 10px;background:var(--bg)">
+      ${lg?`<img src="${lg}" alt="" style="width:30px;height:30px;object-fit:contain;flex-shrink:0">`:'<div style="width:30px;height:30px;border-radius:6px;background:var(--s3);flex-shrink:0"></div>'}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nameLabel} <span style="color:var(--mu);font-weight:500">(${t.abb})</span></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:2px">${confLabel}<span style="font-size:10px;color:var(--mu)">${t.wins||0}-${t.losses||0}</span></div>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px;background:transparent;border:1px solid var(--b);color:var(--tx)" data-tm-edit="${t.abb}">Edit</button>
+        <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px" data-tm-del="${t.abb}">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('[data-tm-edit]').forEach(btn=>btn.addEventListener('click',()=>tmLoadTeam(btn.dataset.tmEdit)));
+  wrap.querySelectorAll('[data-tm-del]').forEach(btn=>btn.addEventListener('click',()=>tmDeleteTeam(btn.dataset.tmDel)));
+}
+document.getElementById('tm-search').addEventListener('input',renderTeamsList);
 
-document.getElementById('es-save-btn').addEventListener('click',async()=>{
-  clearPanelMsg('es-msg');
-  const abb=document.getElementById('es-abb').value.trim().toUpperCase();
-  const wins=document.getElementById('es-wins').value;
-  const losses=document.getElementById('es-losses').value;
-  const streak=document.getElementById('es-streak').value.trim();
-  const logo=document.getElementById('es-logo').value.trim();
-  if(!abb){showPanelMsg('es-msg','Enter a team ABB.','error');return}
-  if(wins===''||losses===''){showPanelMsg('es-msg','Enter both wins and losses.','error');return}
-  if(!confirm(`Manually set ${abb} to ${wins}-${losses}${streak?` (streak ${streak})`:''}? This overwrites the auto-calculated record.`))return;
-  const btn=document.getElementById('es-save-btn');
-  btn.disabled=true;btn.textContent='Saving…';
+document.getElementById('tm-save-btn').addEventListener('click',async()=>{
+  clearPanelMsg('tm-msg');
+  const abb=document.getElementById('tm-abb').value.trim().toUpperCase();
+  const name=document.getElementById('tm-name').value.trim();
+  const conference=document.getElementById('tm-conference').value;
+  const logoUrl=document.getElementById('tm-logo').value.trim();
+  const owner=document.getElementById('tm-owner').value.trim();
+  const gm=document.getElementById('tm-gm').value.trim();
+  const headCoach=document.getElementById('tm-coach').value.trim();
+  const wins=document.getElementById('tm-wins').value;
+  const losses=document.getElementById('tm-losses').value;
+  const streak=document.getElementById('tm-streak').value.trim();
+
+  if(!abb){showPanelMsg('tm-msg','Enter a team abbreviation.','error');return}
+  if(tmMode==='add'){
+    if(!name){showPanelMsg('tm-msg','Enter a team name.','error');return}
+    if(!conference){showPanelMsg('tm-msg','Select a conference.','error');return}
+  }
+  const isAdd=tmMode==='add';
+  const endpoint=isAdd?'/standings/team/add':'/standings/team';
+  const payload=isAdd
+    ?{abb,name,conference,logo:logoUrl,roles:{owner,gm,headCoach}}
+    :{abb,name,conference:conference||undefined,logo:logoUrl,roles:{owner,gm,headCoach}};
+  if(wins!=='')payload.wins=Number(wins)||0;
+  if(losses!=='')payload.losses=Number(losses)||0;
+  if(streak)payload.streak=streak;
+
+  const confirmMsg=isAdd
+    ?`Add "${name}" (${abb}, ${conference}) as a new team?`
+    :`Save changes to ${abb}? This updates the live site immediately.`;
+  if(!confirm(confirmMsg))return;
+
+  const btn=document.getElementById('tm-save-btn');
+  btn.disabled=true;btn.textContent=isAdd?'Adding…':'Saving…';
   try{
-    const payload={abb,wins:Number(wins)||0,losses:Number(losses)||0};
-    if(streak)payload.streak=streak;
-    if(logo)payload.logo=logo;
-    // Admin-only endpoint: the server rejects this with the regular site
-    // SECRET and only accepts the ADMIN_SECRET supplied as adminPassword.
-    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/team'),{
+    const r=await fetch(CFG.API.replace(/\/standings$/,endpoint),{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
       body:JSON.stringify(payload)
     });
-    if(r.status===401){showPanelMsg('es-msg','Unauthorized — admin key required.','error');return}
-    if(!r.ok)throw new Error(`Server error ${r.status}`);
-    showPanelMsg('es-msg',`✓ ${abb} updated to ${wins}-${losses}.`,'success');
-    toast(`Edited ${abb}: ${wins}-${losses}`,'green',4000);
+    let data=null;try{data=await r.json();}catch(_){}
+    if(r.status===401){showPanelMsg('tm-msg','Unauthorized — admin key required.','error');return}
+    if(!r.ok)throw new Error(data?.error?`${data.error} (HTTP ${r.status})`:`Server error ${r.status}`);
+    showPanelMsg('tm-msg',isAdd?`✓ ${abb} added.`:`✓ ${abb} updated.`,'success');
+    toast(isAdd?`Team added: ${abb}`:`Team updated: ${abb}`,'green',4000);
     await fetchData();
-    populateEditTeamList();
-  }catch(e){showPanelMsg('es-msg',e.message||'Failed.','error')}
-  finally{btn.disabled=false;btn.textContent='Save Team Record'}
+    renderTeamsList();
+    if(isAdd)tmClearForm();
+  }catch(e){showPanelMsg('tm-msg',e.message||'Failed.','error')}
+  finally{btn.disabled=false;btn.textContent=isAdd?'Add Team':'Save Changes'}
+});
+
+async function tmDeleteTeam(abb){
+  const t=prevData&&prevData.standings?prevData.standings.find(x=>x.abb===abb):null;
+  const label=t?.name?`${t.name} (${abb})`:abb;
+  if(!confirm(`PERMANENTLY remove ${label}?\n\nThis deletes the team's name, conference, logo, and roles entirely. Past game history stays in the archive, but this team disappears from the standings until an admin re-adds it.\n\nThis cannot be undone.`))return;
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/team/remove'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({abb})
+    });
+    let data=null;try{data=await r.json();}catch(_){}
+    if(!r.ok)throw new Error(data?.error?`${data.error} (HTTP ${r.status})`:`Server error ${r.status}`);
+    toast(`Team removed: ${abb}`,'amber',4000);
+    await fetchData();
+    renderTeamsList();
+    if(tmOriginalAbb===abb)tmClearForm();
+  }catch(e){toast(`Failed to remove ${abb}: ${e.message||'unknown error'}`,'red',5000)}
+}
+
+document.getElementById('tm-delete-btn').addEventListener('click',()=>{
+  if(tmOriginalAbb)tmDeleteTeam(tmOriginalAbb);
 });
 
 /* ── VOID / UNVOID ── */

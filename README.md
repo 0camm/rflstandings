@@ -46,13 +46,20 @@ const CFG={API:'https://rflstandings.onrender.com/rpl/standings', ...}
 ## Using the admin panel
 
 1. Open the site → click the admin/settings icon → enter your `ADMIN_SECRET`.
-2. **Add Game** — enter the away/home team abbreviations, final score, and
+2. **Games** — enter the away/home team abbreviations, final score, and
    status. Records + standings update automatically.
-3. **Team Override** — directly set any team's W/L/streak/logo if you need to
-   correct something without adding a full game.
+3. **Teams** — fully manual team management. Add a brand-new team, edit an
+   existing one's name/conference/logo/roles/record, or permanently remove a
+   team. Nothing here is synced from Roblox or any other source — every field
+   is typed in by an admin and only changes when an admin saves a change.
+   - **Owner / General Manager / Head Coach** are plain text fields (e.g. a
+     Roblox username) an admin fills in by hand — there is no group-role
+     lookup happening behind the scenes.
 4. **Void / Remove** a game by its ID if it was entered by mistake.
 5. **Zero Records** wipes every team back to 0-0 but keeps the roster/logos.
 6. **Archive & Advance** snapshots the current season as a final-standings
    archive page, then wipes the board clean for the next season.
 
-No other setup is needed — the 32 NFL teams are already seeded on first boot.
+The 32 NFL teams are seeded automatically **one time only**, on first boot,
+so the admin panel isn't empty on day one — after that, the Teams tab is the
+only way team info ever changes.
