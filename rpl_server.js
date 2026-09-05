@@ -115,10 +115,21 @@ function upstashRequest(method, path, body) {
   });
 }
 
+// Tracks whether this boot's load from Upstash actually succeeded. saveState()
+// refuses to write unless this is true, so a network hiccup or bad response
+// during startup can never result in a blank/seeded state getting persisted
+// over real data — the old code seeded AND saved on any failure, which is
+// what wiped a real roster down to 0-0 in the first place.
+let stateLoadedOk = false;
+
 async function loadState() {
-  if (!UPSTASH_URL || !UPSTASH_TOKEN) { seedRoster(); return; }
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) { seedRoster(); stateLoadedOk = true; return; }
   try {
-    const { body } = await upstashRequest("GET", `/get/${STATE_KEY}`);
+    const { status, body } = await upstashRequest("GET", `/get/${STATE_KEY}`);
+    if (status !== 200) {
+      console.error(`[RFL] FATAL: Upstash GET /get/${STATE_KEY} returned HTTP ${status}. Refusing to start — starting anyway risks seeding a blank roster and then saving over your real data. Check UPSTASH_REDIS_REST_URL/TOKEN and Upstash status, then redeploy.`);
+      process.exit(1);
+    }
     const parsed = body && body.result ? JSON.parse(body.result) : null;
     if (parsed) {
       state.teams       = parsed.teams       || {};
@@ -128,13 +139,36 @@ async function loadState() {
       state.refLog       = parsed.refLog     || [];
       console.log("[RFL] Loaded from Upstash:", Object.keys(state.teams).length, "teams");
     }
-  } catch (e) { console.error("[RFL] loadState error:", e.message); }
-  if (Object.keys(state.teams).length === 0) seedRoster();
+    stateLoadedOk = true;
+  } catch (e) {
+    console.error("[RFL] FATAL: loadState failed —", e.message, "— refusing to start. Starting anyway risks seeding a blank roster and then saving over your real data. Redeploy once Upstash is reachable.");
+    process.exit(1);
+  }
+  if (Object.keys(state.teams).length === 0) {
+    console.warn("[RFL] Upstash's stored state has 0 teams. Seeding the default roster now. IMPORTANT: if you did not intend to clear the roster, stop and restore from a backup BEFORE any admin action triggers a save — the next save will overwrite Upstash with this fresh 0-0 seed.");
+    seedRoster();
+  }
 }
 
 async function saveState() {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
+  if (!stateLoadedOk) {
+    console.error("[RFL] saveState refused: this process never successfully completed loadState(). Not risking a write.");
+    return;
+  }
   try {
+    // Snapshot whatever is currently in Upstash to a backup key BEFORE
+    // overwriting it. This is a one-generation-back safety net: if a Reset,
+    // Archive-Advance, or bad seed gets saved, /rpl/standings/restore-backup
+    // can undo it. Best-effort — a backup failure must never block the
+    // actual save.
+    try {
+      const prev = await upstashRequest("GET", `/get/${STATE_KEY}`);
+      if (prev.status === 200 && prev.body && prev.body.result) {
+        await upstashRequest("POST", `/set/${STATE_KEY}-backup`, { value: prev.body.result });
+      }
+    } catch (e) { console.error("[RFL] pre-save backup failed (continuing with save):", e.message); }
+
     const payload = {
       teams:       state.teams,
       results:     state.results,
@@ -144,6 +178,38 @@ async function saveState() {
     };
     await upstashRequest("POST", `/set/${STATE_KEY}`, { value: JSON.stringify(payload) });
   } catch (e) { console.error("[RFL] saveState error:", e.message); }
+}
+
+async function handleRestoreBackup(req, res) {
+  // Restores state.teams/results/etc from the backup key written by the
+  // last successful saveState() call — i.e. "undo the most recent save".
+  // Admin-only. Chain two of these (if needed) to go back further only if
+  // you called it after each bad save; there is only ever ONE backup
+  // generation kept, so restoring twice in a row without a save in between
+  // will just restore the same snapshot again.
+  if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
+  try {
+    const { status, body } = await upstashRequest("GET", `/get/${STATE_KEY}-backup`);
+    if (status !== 200 || !body || !body.result) {
+      return sendJSON(res, 404, { error: "No backup found." });
+    }
+    const parsed = JSON.parse(body.result);
+    state.teams       = parsed.teams       || {};
+    state.results     = parsed.results     || [];
+    state.lastUpdated = parsed.lastUpdated || null;
+    state.auditLog     = parsed.auditLog    || [];
+    state.refLog       = parsed.refLog     || [];
+    stateLoadedOk = true;
+
+    await upstashRequest("POST", `/set/${STATE_KEY}`, { value: body.result });
+    broadcast("standings", buildPublicPayload());
+
+    console.log(`[RFL] Restored from backup key: ${Object.keys(state.teams).length} teams, ${state.results.length} results.`);
+    return sendJSON(res, 200, { ok: true, teams: Object.keys(state.teams).length, results: state.results.length });
+  } catch (e) {
+    console.error("[RFL] handleRestoreBackup error:", e.message);
+    return sendJSON(res, 500, { error: e.message || "Restore failed" });
+  }
 }
 
 function isAuthorized(req) {
@@ -825,6 +891,7 @@ const server = http.createServer(async (req, res) => {
   if (url === "/rpl/archive"            && method === "POST") return handleSetArchive(req, res);
   if (url === "/rpl/standings/archive-advance" && method === "POST") return handleArchiveAndAdvance(req, res);
   if (url === "/rpl/standings/zero-records"    && method === "POST") return handleZeroRecords(req, res);
+  if (url === "/rpl/standings/restore-backup"  && method === "POST") return handleRestoreBackup(req, res);
 
   sendJSON(res, 404, { error: "Not found" });
 });
