@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RFL Standings — Season 1</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23e8001d'/><text x='16' y='23' text-anchor='middle' font-family='Arial Black,sans-serif' font-size='18' font-weight='900' fill='white'>R</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#ff1233;--red2:#ff4d5e;--red-a:.08;
+  --red-dim:rgba(255,18,51,.09);--red-mid:rgba(255,18,51,.22);--red-edge:rgba(255,18,51,.5);
+  --bg:#050508;--s1:#0e0e16;--s2:#14141f;--s3:#1a1a28;--s4:#222233;
+  --b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.04);--b3:rgba(255,255,255,.14);
+  --mu:#5c5c78;--mu2:#404058;
+  --tx:#eeeef8;--tx2:#a3a3c2;
+  --gr:#1fe07a;--gr-d:rgba(31,224,122,.1);
+  --am:#ffb63d;--am-d:rgba(255,182,61,.1);
+  --bl:#5b9cf6;--bl-d:rgba(91,156,246,.1);
+  --gold:#f5c400;--gold-d:rgba(245,196,0,.09);--gold-mid:rgba(245,196,0,.3);
+  --win:#3de87a;--lose:#f06070;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.25);
+  --shadow-md:0 10px 32px rgba(0,0,0,.45);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.55);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(1100px 560px at 12% -10%, rgba(255,18,51,.13), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(91,60,246,.07), transparent 55%),
+    var(--bg);color:var(--tx);
+  font-family:'Inter',sans-serif;font-size:14px;
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+  width:100%;max-width:100vw;overflow-x:hidden;
+}
+
+/* ── LOADING BAR ── */
+.loading-bar{
+  height:2px;background:var(--red);
+  width:0%;position:fixed;
+  top:0;left:0;z-index:999;
+  transition:width .3s ease;
+}
+
+/* ── STATUS BAR ── */
+.sbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;padding:9px 20px;
+  width:100%;
+}
+.sbar-left{display:flex;align-items:center;gap:10px;}
+.sbar-sync{font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.live-chip{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mu);
+}
+.live-chip.on{color:var(--gr)}
+.ldot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.live-chip.on .ldot{animation:blink 1.8s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+
+.sbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+.admin-btn{
+  background:none;border:1px solid var(--b);border-radius:6px;
+  padding:5px 12px;
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mu);cursor:pointer;
+  transition:border-color .2s,color .2s;white-space:nowrap;
+  min-height:32px;
+}
+.admin-btn:hover{border-color:rgba(232,0,29,.4);color:var(--tx);}
+
+/* ── HERO ── */
+.hero{
+  padding:28px 20px 24px;
+  position:relative;
+  border-bottom:1px solid var(--b2);
+  width:100%;
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;width:180px;height:2px;
+  background:linear-gradient(90deg,var(--red),transparent);
+}
+.hero-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+.hero-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--red);margin-bottom:8px;
+  display:flex;align-items:center;gap:7px;
+}
+.hero-eyebrow::before{content:'';width:16px;height:1px;background:var(--red);flex-shrink:0}
+.hero-h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:44px;letter-spacing:.02em;line-height:.92;color:#fff;
+}
+.hero-h1 em{color:var(--red);font-style:normal}
+.hero-sub{
+  margin-top:8px;font-size:11px;color:var(--mu);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+}
+.hdot{width:3px;height:3px;border-radius:50%;background:var(--mu2);flex-shrink:0}
+
+.hero-key{
+  display:flex;flex-wrap:wrap;gap:5px;align-self:flex-end;max-width:100%;
+}
+.kc{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;border-radius:7px;
+  background:var(--s2);border:1px solid var(--b);
+}
+.kc-pip{width:3px;height:13px;border-radius:2px;flex-shrink:0}
+.kc-pip.z{background:var(--am)}
+.kc-pip.x{background:var(--gr)}
+.kc-pip.pi{background:var(--bl)}
+.kc-pip.e{background:var(--mu2)}
+.kc-code{font-weight:700;color:var(--tx2);font-family:'JetBrains Mono',monospace;font-size:10px}
+.kc-lbl{color:var(--mu);font-size:10px}
+
+/* ── ALERT ── */
+.alert{
+  display:none;margin:12px 20px 0;
+  padding:10px 14px;font-size:12px;color:var(--mu);
+  background:var(--s1);border:1px solid var(--b);
+  border-left:3px solid var(--am);border-radius:0 7px 7px 0;
+}
+.alert.on{display:block}
+
+/* ── MAIN ── */
+.main{padding:24px 20px 72px;width:100%}
+
+/* ── VIEW TABS (matching salary site style) ── */
+.view-tabs{
+  display:flex;gap:2px;padding:16px 0 0;
+  border-bottom:1px solid var(--b);margin-bottom:0;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.view-tabs::-webkit-scrollbar{display:none;}
+.view-tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:9px 16px;margin-bottom:-1px;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mu);cursor:pointer;
+  transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0;
+  min-height:44px;display:flex;align-items:center;
+}
+.view-tab:hover{color:var(--tx);}
+.view-tab.active{color:#fff;border-bottom-color:var(--red);}
+
+/* ── SECTION HEADER ── */
+.sec-hd{margin-bottom:14px;width:100%}
+.sec-hd-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.08em;color:#fff}
+.sec-ct{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mu);background:var(--s3);border:1px solid var(--b);
+  border-radius:20px;padding:2px 9px;
+}
+.sec-rule{flex:1;height:1px;background:var(--b2)}
+
+.filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%}
+.fc{
+  background:var(--s2);border:1px solid var(--b);
+  border-radius:7px;color:var(--tx);
+  font-size:12px;font-family:'Inter',sans-serif;
+  padding:6px 10px;outline:none;transition:border-color .15s;min-width:0;
+}
+.fc::placeholder{color:var(--mu)}
+.fc:focus{border-color:var(--red-edge)}
+.fc-search{flex:1;min-width:80px;max-width:160px}
+select.fc{
+  padding-right:24px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath fill='%2352526a' d='M0 0l4.5 5L9 0z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;
+  background-color:var(--s2);
+}
+
+/* ── MATCH HISTORY TABLE ── */
+.ht-wrap{
+  width:100%;background:var(--s1);border:1px solid var(--b);
+  border-radius:11px;overflow:hidden;position:relative;
+}
+.ht-wrap::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--red-edge),transparent 50%);
+}
+.ht-hd{
+  display:grid;grid-template-columns:30px 1fr 64px 72px 64px;
+  padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--b);width:100%;
+}
+.ht-hd span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.ht-hd span:nth-child(1){text-align:center}
+.ht-hd span:nth-child(3),.ht-hd span:nth-child(4),.ht-hd span:nth-child(5){text-align:center}
+.hr{
+  display:grid;grid-template-columns:30px 1fr 64px 72px 64px;
+  padding:9px 14px;align-items:center;
+  border-bottom:1px solid var(--b2);
+  position:relative;transition:background .12s;cursor:default;width:100%;
+}
+.hr:last-child{border-bottom:none}
+.hr.clk{cursor:pointer}
+.hr.clk:hover{background:rgba(255,255,255,.02)}
+.hr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.hr.st-final::before{background:var(--gr)}
+.hr.st-forfeit::before{background:var(--am)}
+.hr.st-incomplete::before{background:var(--mu2)}
+.hn{font-size:10px;color:var(--mu2);text-align:center;font-family:'JetBrains Mono',monospace}
+.hm{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden}
+.hm-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;opacity:.85}
+.hm-nolog{width:18px;height:18px;border-radius:50%;background:var(--s3);flex-shrink:0}
+.hm-away{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.05em;color:#fff;flex-shrink:0}
+.hm-away.dim{color:var(--mu)}
+.hm-at{font-size:10px;color:var(--mu2);flex-shrink:0}
+.hm-home-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hm-home{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.05em;color:#fff}
+.hm-home.dim{color:var(--mu)}
+.hs{
+  text-align:center;font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;
+  white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;
+}
+.hs-a,.hs-h{color:var(--mu)}
+.hs-a.w,.hs-h.w{color:var(--win)}
+.hs-dash{color:var(--mu2);font-size:11px}
+.hb{text-align:center}
+.hbadge{
+  display:inline-flex;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  padding:3px 7px;border-radius:4px;white-space:nowrap;
+}
+.hbadge.final{background:var(--gr-d);color:var(--gr);border:1px solid rgba(24,212,100,.18)}
+.hbadge.forfeit{background:var(--am-d);color:var(--am);border:1px solid rgba(245,166,35,.18)}
+.hbadge.ot{background:var(--bl-d);color:var(--bl);border:1px solid rgba(91,156,246,.18)}
+.hbadge.incomplete{background:rgba(60,60,90,.2);color:var(--mu);border:1px solid var(--b)}
+.hdate{
+  text-align:center;font-size:10px;color:var(--mu);white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:3px;
+}
+.harrow{color:var(--red);font-size:10px;opacity:0;transform:translateX(-3px);transition:opacity .14s,transform .14s}
+.hr.clk:hover .harrow{opacity:1;transform:none}
+.hist-empty{padding:40px 20px;text-align:center;font-size:13px;color:var(--mu)}
+
+/* voided */
+.hr.voided{background:rgba(232,0,29,.045)}
+.hr.voided::before{background:var(--red)!important}
+.hr.voided .hm-away,.hr.voided .hm-home{
+  color:var(--mu)!important;text-decoration:line-through;text-decoration-color:rgba(232,0,29,.5);
+}
+.hr.voided .hs-a,.hr.voided .hs-h{color:var(--mu)!important;text-decoration:line-through;text-decoration-color:rgba(232,0,29,.4)}
+.hr.voided .hm-logo,.hr.voided .hm-nolog{opacity:.35;filter:grayscale(1)}
+.hbadge.voided{
+  background:rgba(232,0,29,.15);color:#ff6b6b;
+  border:1px solid rgba(232,0,29,.35);
+  font-weight:800;letter-spacing:.12em;
+}
+
+/* ── PAGER ── */
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px;width:100%}
+.pg-info{font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.pg-btns{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.pb{
+  background:transparent;border:1px solid var(--b);border-radius:5px;color:var(--tx2);
+  font-size:11px;font-family:'Inter',sans-serif;font-weight:500;
+  padding:4px 10px;cursor:pointer;transition:background .1s,border-color .1s,color .1s;touch-action:manipulation;
+}
+.pb:hover:not(:disabled){background:var(--s3);border-color:rgba(255,255,255,.11);color:#fff}
+.pb:disabled{opacity:.28;cursor:default}
+.pb.cur{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
+.pb-ellip{color:var(--mu);font-size:11px;padding:0 2px}
+.pg-jump{display:flex;align-items:center;gap:5px}
+.pg-jlbl{font-size:11px;color:var(--mu)}
+.pg-jin{
+  background:var(--s3);border:1px solid var(--b);border-radius:5px;color:var(--tx);
+  font-size:11px;font-family:'JetBrains Mono',monospace;width:40px;padding:4px 6px;text-align:center;outline:none;
+}
+.pg-jin:focus{border-color:var(--red-edge)}
+
+/* ── CONFERENCES ── */
+.conf-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px;width:100%}
+@media(max-width:860px){.conf-grid{grid-template-columns:1fr;gap:18px}}
+.conf-hd{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.conf-tag{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:3px 9px;border-radius:4px;flex-shrink:0}
+.conf-tag.east{background:var(--red-dim);color:var(--red);border:1px solid var(--red-mid)}
+.conf-tag.west{background:var(--bl-d);color:var(--bl);border:1px solid rgba(91,156,246,.16)}
+.conf-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;color:#fff}
+
+/* ── STANDINGS TABLE ── */
+.std-wrap{background:var(--s1);border:1px solid var(--b);border-radius:11px;overflow:hidden;position:relative;width:100%}
+.std-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--red-edge),transparent 50%);z-index:1}
+.std-hd{
+  display:grid;grid-template-columns:26px 30px 1fr 40px 40px 58px 52px;
+  padding:8px 12px;background:var(--s2);border-bottom:1px solid var(--b);
+}
+.std-hd span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);text-align:center}
+.std-hd span:nth-child(3){text-align:left}
+.srow{
+  display:grid;grid-template-columns:26px 30px 1fr 40px 40px 58px 52px;
+  padding:8px 12px;align-items:center;border-bottom:1px solid var(--b2);
+  position:relative;transition:background .11s;width:100%;
+}
+.srow:last-child{border-bottom:none}
+.srow:hover{background:rgba(255,255,255,.016)}
+.srow::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:0 2px 2px 0}
+.srow.s-z::before{background:var(--am)}
+.srow.s-x::before{background:var(--gr)}
+.srow.s-pi::before{background:var(--bl)}
+@keyframes rfl{0%{background:rgba(232,0,29,.08)}100%{background:transparent}}
+.srow.flash{animation:rfl 1.8s ease forwards}
+.srow.s-e .rn,.srow.s-e .rw,.srow.s-e .rl,.srow.s-e .rp{color:#2a2a42}
+.srow.cut::after{content:'';position:absolute;top:0;left:6px;right:6px;height:1px;background:var(--b)}
+.rrank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mu);text-align:center;font-variant-numeric:tabular-nums}
+.srow:nth-child(-n+4) .rrank{color:var(--tx2)}
+.rlogo{display:flex;align-items:center;justify-content:center}
+.rlogo img{width:20px;height:20px;object-fit:contain;opacity:.82;transition:opacity .15s}
+.srow:hover .rlogo img{opacity:1}
+.rlogo .ph{width:20px;height:20px;border-radius:50%;background:var(--s4)}
+.rn{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmeta{display:flex;align-items:center;gap:4px;margin-top:1px}
+.rabb{font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
+.rbadge{font-size:8px;font-weight:700;letter-spacing:.06em;padding:1px 4px;border-radius:3px}
+.rbadge.z{background:rgba(245,166,35,.1);color:var(--am)}
+.rbadge.x{background:rgba(24,212,100,.09);color:var(--gr)}
+.rbadge.pi{background:rgba(91,156,246,.09);color:var(--bl)}
+.rbadge.e{display:none}
+.rw,.rl,.rp{text-align:center;font-size:12px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.rw{color:var(--win);font-weight:600}
+.rl{color:var(--lose);font-weight:600}
+.rp{color:var(--tx2)}
+.rstrk{text-align:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.rstrk.w{color:var(--win)}.rstrk.l{color:var(--lose)}.rstrk.n{color:var(--mu)}
+
+/* ── REFEREE TABLE ── */
+.reftbl-wrap{overflow-x:auto;border-radius:11px;border:1px solid var(--b);background:var(--s1);position:relative;}
+.reftbl-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--red-edge),transparent 50%);z-index:1}
+.reftbl{width:100%;border-collapse:collapse}
+.reftbl thead tr{border-bottom:1px solid var(--b)}
+.reftbl th{padding:9px 12px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);text-align:left;white-space:nowrap;background:var(--s2)}
+.reftbl th:not(:first-child){text-align:center}
+.reftbl td{padding:9px 12px;font-size:12px;color:var(--tx2);border-top:1px solid var(--b2);white-space:nowrap}
+.reftbl td:not(:first-child){text-align:center;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.reftbl tr:hover td{background:rgba(255,255,255,.016)}
+.ref-name{font-weight:600;color:var(--tx);font-size:13px}
+.ref-games-badge{
+  display:inline-block;background:var(--s3);border:1px solid var(--b);border-radius:4px;
+  padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx)
+}
+.ref-robux-badge{
+  display:inline-block;background:rgba(61,232,122,.1);border:1px solid rgba(61,232,122,.3);border-radius:4px;
+  padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--win)
+}
+.refs-empty{text-align:center;padding:40px 20px;color:var(--mu);font-size:13px}
+
+/* ── ARCHIVE ── */
+.archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:4px}
+.arc-card{background:var(--s1);border:1px solid var(--b);border-radius:11px;overflow:hidden;position:relative;cursor:pointer;transition:border-color .15s,transform .15s}
+.arc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold-mid),transparent 60%)}
+.arc-card:hover{border-color:var(--gold-mid);transform:translateY(-2px)}
+.arc-hd{padding:13px 15px 11px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.arc-season{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;color:#fff}
+.arc-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);background:var(--s3);border:1px solid var(--b);border-radius:20px;padding:2px 8px}
+.arc-body{padding:14px 15px;display:flex;align-items:center;gap:12px}
+.arc-champ-logo{width:44px;height:44px;object-fit:contain;flex-shrink:0}
+.arc-champ-ph{width:44px;height:44px;border-radius:50%;background:var(--s3);flex-shrink:0}
+.arc-champ-info{flex:1;min-width:0}
+.arc-champ-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.arc-champ-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.04em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arc-final{font-size:11px;color:var(--mu);margin-top:2px}
+.arc-empty{padding:60px 20px;text-align:center;color:var(--mu);font-size:13px;grid-column:1/-1}
+
+.amg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:12px;opacity:0;pointer-events:none;transition:opacity .2s}
+.amg.open{opacity:1;pointer-events:all}
+.amodal{background:var(--s1);border:1px solid var(--b);border-radius:14px;overflow:hidden;width:100%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;transform:translateY(12px) scale(.97);transition:transform .2s;box-shadow:0 28px 72px rgba(0,0,0,.8);position:relative}
+.amodal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent 60%);z-index:2}
+.amg.open .amodal{transform:none}
+.ahd{padding:16px 20px;background:var(--s2);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+.ahd-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.05em;color:#fff}
+.ahd-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.aclose{background:var(--s3);border:1px solid var(--b);cursor:pointer;color:var(--mu);font-size:16px;line-height:1;width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
+.aclose:hover{color:#fff;background:var(--s4);border-color:rgba(255,255,255,.12)}
+.abody{overflow-y:auto;flex:1;padding:20px;display:flex;flex-direction:column;gap:18px}
+.achamp-banner{display:flex;align-items:center;gap:16px;background:var(--gold-d);border:1px solid var(--gold-mid);border-radius:10px;padding:16px 18px}
+.achamp-banner img{width:54px;height:54px;object-fit:contain;flex-shrink:0}
+.achamp-crown{font-size:24px}
+.achamp-text-lbl{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.achamp-text-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.04em;color:#fff}
+.achamp-text-series{font-size:11px;color:var(--mu);margin-top:2px}
+.arounds{display:flex;flex-direction:column;gap:14px}
+.around-block{background:var(--bg);border:1px solid var(--b);border-radius:10px;overflow:hidden}
+.around-hd{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--mu);padding:9px 14px;background:var(--s2);border-bottom:1px solid var(--b)}
+.amatch-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--b2);flex-wrap:wrap}
+.amatch-row:last-child{border-bottom:none}
+.amatch-conf{font-size:9px;font-weight:700;color:var(--mu);width:34px;flex-shrink:0;text-align:center}
+.amatch-conf.east{color:var(--red)}
+.amatch-conf.west{color:var(--bl)}
+.amatch-team{display:flex;align-items:center;gap:6px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.04em;color:rgba(226,226,242,.65)}
+.amatch-team.winner{color:#fff}
+.amatch-team img{width:17px;height:17px;object-fit:contain}
+.amatch-vs{color:var(--mu2);font-size:11px;flex-shrink:0}
+.amatch-series{margin-left:auto;font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+
+/* ── ADMIN PANEL (bottom sheet / modal — matching salary site style) ── */
+.admin-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.admin-overlay.open{opacity:1;pointer-events:all}
+.admin-panel{
+  position:fixed;z-index:201;
+  background:var(--s1);
+  display:flex;flex-direction:column;
+  bottom:0;left:0;right:0;
+  border-radius:20px 20px 0 0;
+  border:1px solid var(--b);border-bottom:none;
+  max-height:92dvh;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.32,1,.56,1);
+}
+.admin-panel.open{transform:translateY(0);}
+@media(min-width:680px){
+  .admin-panel{
+    top:50%;left:50%;right:auto;bottom:auto;
+    transform:translate(-50%,-46%) scale(.97);
+    border-radius:16px;border-bottom:1px solid var(--b);
+    width:600px;max-width:calc(100vw - 40px);
+    max-height:88dvh;opacity:0;
+    transition:transform .25s cubic-bezier(.32,1,.56,1),opacity .2s;
+  }
+  .admin-panel.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+.admin-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--mu2);margin:12px auto 0;flex-shrink:0;
+}
+@media(min-width:680px){.admin-handle{display:none}}
+.admin-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px 14px;border-bottom:1px solid var(--b);flex-shrink:0;
+}
+.admin-header-left{display:flex;flex-direction:column;gap:2px;}
+.admin-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:#fff;line-height:1;}
+.admin-sub{font-size:11px;color:var(--mu);}
+.admin-close{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--s2);border:1px solid var(--b);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--mu);cursor:pointer;
+  transition:background .15s,color .15s;flex-shrink:0;
+}
+.admin-close:hover{background:var(--s3);color:var(--tx);}
+
+/* admin lock screen */
+.admin-lock{padding:24px 20px;flex-shrink:0;}
+.admin-lock-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;}
+.admin-lock-row{display:flex;gap:8px;}
+.admin-lock-input{
+  flex:1;background:var(--bg);border:1px solid var(--b);
+  border-radius:10px;padding:13px 14px;
+  color:var(--tx);font-family:'Inter',sans-serif;
+  font-size:16px;outline:none;transition:border-color .2s;
+}
+.admin-lock-input:focus{border-color:rgba(232,0,29,.4);}
+.admin-lock-btn{
+  background:var(--red);border:none;border-radius:10px;
+  padding:0 20px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.04em;cursor:pointer;
+  transition:opacity .15s;min-height:50px;white-space:nowrap;
+}
+.admin-lock-btn:hover{opacity:.85;}
+
+/* admin tabs */
+.admin-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--b);
+  flex-shrink:0;overflow-x:auto;scrollbar-width:none;
+}
+.admin-tabs::-webkit-scrollbar{display:none;}
+.admin-tab{
+  flex:1;padding:12px 0;
+  background:none;border:none;
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mu);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .15s,border-color .15s;
+  white-space:nowrap;min-width:80px;min-height:44px;
+}
+.admin-tab.active{color:#fff;border-bottom-color:var(--red);}
+.admin-tab:hover:not(.active){color:var(--tx);}
+.admin-body-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 env(safe-area-inset-bottom,0);}
+
+/* admin sections */
+.admin-section{background:var(--bg);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin:12px 16px;}
+.admin-section:last-child{margin-bottom:16px;}
+.admin-section-hd{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-bottom:1px solid var(--b);background:var(--s2);
+}
+.admin-section-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.admin-section-icon.blue{background:rgba(91,156,246,.1);color:var(--bl)}
+.admin-section-icon.amber{background:rgba(245,166,35,.1);color:var(--am)}
+.admin-section-icon.red{background:rgba(232,0,29,.1);color:var(--red)}
+.admin-section-icon.gold{background:var(--gold-d);color:var(--gold)}
+.admin-section-label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx)}
+.admin-section-desc{font-size:10px;color:var(--mu);margin-top:1px}
+.admin-section-body{padding:12px 14px}
+
+/* fields & buttons inside admin */
+.input-row{display:flex;gap:7px;align-items:stretch}
+.field-input{
+  flex:1;background:var(--s2);border:1px solid var(--b);border-radius:7px;padding:9px 12px;
+  color:var(--tx);font-family:'Inter',sans-serif;font-size:max(13px,16px);
+  outline:none;transition:border-color .15s;min-width:0;
+}
+.field-input:focus{border-color:var(--red-edge);}
+.field-input::placeholder{color:var(--mu)}
+.add-game-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.add-game-grid .field-input{width:100%}
+.add-game-row{display:flex;gap:7px;margin-bottom:7px}
+.add-game-row .field-input{flex:1}
+.add-game-row select.field-input{flex:1}
+.action-btn{
+  background:var(--s3);border:1px solid var(--b);border-radius:7px;padding:0 14px;color:var(--tx);
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap;min-height:38px;flex-shrink:0;
+}
+.action-btn:hover{border-color:var(--red-edge);background:var(--red-dim)}
+.action-btn:disabled{opacity:.4;cursor:not-allowed}
+.gold-btn{
+  width:100%;background:var(--gold-d);border:1px solid var(--gold-mid);border-radius:7px;padding:10px 16px;
+  color:var(--gold);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  cursor:pointer;transition:background .15s,border-color .15s;min-height:42px;
+}
+.gold-btn:hover{background:rgba(245,196,0,.16)}
+.gold-btn:disabled{opacity:.4;cursor:not-allowed}
+.danger-btn{
+  width:100%;background:rgba(232,0,29,.08);border:1px solid rgba(232,0,29,.2);border-radius:7px;
+  padding:10px 16px;color:var(--red);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s;min-height:42px;
+}
+.danger-btn:hover{background:rgba(232,0,29,.15);border-color:rgba(232,0,29,.4)}
+.danger-btn:disabled{opacity:.4;cursor:not-allowed}
+.panel-msg{font-size:12px;margin-top:10px;padding:9px 12px;border-radius:7px;display:none}
+.panel-msg.show{display:block}
+.panel-msg.success{background:var(--gr-d);border:1px solid rgba(24,212,100,.18);color:var(--gr)}
+.panel-msg.error{background:var(--red-dim);border:1px solid var(--red-mid);color:#f87171}
+
+/* game picker */
+.gp-row{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;
+  padding:7px 10px;border-radius:6px;border:1px solid var(--b);background:var(--s2);
+  cursor:pointer;transition:background .1s,border-color .1s;
+}
+.gp-row:hover{background:var(--s3);border-color:var(--red-edge)}
+.gp-row.selected{background:var(--red-dim);border-color:var(--red-edge)}
+.gp-matchup{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.05em;color:#fff}
+.gp-score{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--tx2);white-space:nowrap}
+.gp-meta{font-size:9px;color:var(--mu);margin-top:1px;display:flex;gap:5px;align-items:center}
+.gp-status{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
+.gp-status.final{background:var(--gr-d);color:var(--gr)}
+.gp-status.forfeit{background:var(--am-d);color:var(--am)}
+.gp-status.voided{background:rgba(255,80,80,.08);color:rgba(255,100,100,.55)}
+.gp-status.incomplete{background:rgba(60,60,90,.2);color:var(--mu)}
+.gp-empty{font-size:12px;color:var(--mu);text-align:center;padding:14px 0;font-style:italic}
+
+/* audit log */
+.audit-list{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto}
+.audit-empty{font-size:11px;color:var(--mu);text-align:center;padding:14px 0;font-style:italic}
+.audit-entry{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+  padding:7px 10px;border-radius:6px;border:1px solid var(--b);background:var(--s2);
+}
+.audit-badge{
+  font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;flex-shrink:0;
+}
+.audit-badge.added{background:rgba(91,156,246,.1);color:var(--bl);border:1px solid rgba(91,156,246,.2)}
+.audit-badge.voided{background:rgba(232,0,29,.1);color:#f87171;border:1px solid rgba(232,0,29,.2)}
+.audit-badge.unvoided{background:rgba(24,212,100,.08);color:var(--gr);border:1px solid rgba(24,212,100,.18)}
+.audit-info{min-width:0}
+.audit-matchup{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.04em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audit-score{font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.audit-time{font-size:9px;color:var(--mu2);font-family:'JetBrains Mono',monospace;white-space:nowrap;flex-shrink:0}
+
+.hidden{display:none!important}
+.admin-result{margin:0;padding:12px 16px;font-size:12px;font-weight:500;display:none;border-top:1px solid var(--b);flex-shrink:0;}
+.admin-result.success{background:var(--gr-d);color:var(--gr);display:block;}
+.admin-result.error{background:var(--red-dim);color:var(--red);display:block;}
+
+/* ── BOX SCORE MODAL ── */
+.mbg{
+  position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.82);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:12px;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.mbg.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--s1);border:1px solid var(--b);border-radius:14px;overflow:hidden;
+  width:100%;max-width:840px;max-height:92vh;display:flex;flex-direction:column;
+  transform:translateY(12px) scale(.97);transition:transform .2s;
+  box-shadow:0 28px 72px rgba(0,0,0,.8);position:relative;
+}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent 60%);z-index:2}
+.mbg.open .modal{transform:none}
+.mhd{
+  padding:16px 20px;background:var(--s2);border-bottom:1px solid var(--b);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;flex-wrap:wrap;
+}
+.mmatchup{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mteam{display:flex;align-items:center;gap:8px}
+.mteam img{width:30px;height:30px;object-fit:contain;flex-shrink:0}
+.mabb{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:#fff}
+.mscore{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:#fff;min-width:20px;text-align:center}
+.mscore.w{color:var(--win)}
+.msep{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--mu2)}
+.mmeta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.mbadge{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:5px}
+.mbadge.final{background:var(--gr-d);color:var(--gr);border:1px solid rgba(24,212,100,.18)}
+.mbadge.forfeit{background:var(--am-d);color:var(--am);border:1px solid rgba(245,166,35,.18)}
+.mbadge.ot{background:var(--bl-d);color:var(--bl);border:1px solid rgba(91,156,246,.18)}
+.mseason{font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.mclose{
+  background:var(--s3);border:1px solid var(--b);cursor:pointer;color:var(--mu);font-size:16px;line-height:1;
+  width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  transition:all .13s;flex-shrink:0;
+}
+.mclose:hover{color:#fff;background:var(--s4);border-color:rgba(255,255,255,.12)}
+.mbody{overflow-y:auto;flex:1;padding:20px;display:flex;flex-direction:column;gap:18px}
+.minfo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.minfo{grid-template-columns:1fr}}
+.icard{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:14px 15px}
+.ilbl{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-bottom:10px}
+.potg-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em;color:#fff;margin-bottom:2px}
+.potg-team{font-size:11px;color:var(--mu);margin-bottom:10px}
+.potg-stats{display:flex;flex-wrap:wrap;gap:5px}
+.ps{display:flex;flex-direction:column;align-items:center;background:var(--s3);border:1px solid var(--b);border-radius:6px;padding:5px 10px;min-width:36px}
+.ps-v{font-size:16px;font-weight:700;color:#fff;line-height:1;font-family:'JetBrains Mono',monospace}
+.ps-l{font-size:9px;color:var(--mu);letter-spacing:.08em;margin-top:2px}
+.refs-txt{font-size:12px;color:var(--tx2);line-height:1.8}
+.refs-na{font-size:12px;color:var(--mu);font-style:italic}
+.bshd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bshd img{width:20px;height:20px;object-fit:contain}
+.bsname{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.06em;color:#fff}
+.bssc{margin-left:auto;font-size:12px;font-weight:700;color:var(--mu);font-family:'JetBrains Mono',monospace}
+.bssc.w{color:var(--win)}
+.bstbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bstbl{width:100%;min-width:580px;border-collapse:collapse;background:var(--s2);border-radius:8px;overflow:hidden;border:1px solid var(--b)}
+.bstbl thead tr{background:var(--s3)}
+.bstbl th{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:6px 8px;text-align:right;white-space:nowrap}
+.bstbl th:first-child{text-align:left;min-width:90px}
+.bstbl td{font-size:11px;color:var(--tx2);padding:6px 8px;text-align:right;border-top:1px solid var(--b2);font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.bstbl td:first-child{text-align:left;color:#fff;font-weight:500;font-family:'Inter',sans-serif}
+.bstbl tbody tr:hover{background:rgba(255,255,255,.013)}
+.bstbl td.pts{font-weight:700;color:var(--win)}
+.bsnone{font-size:12px;color:var(--mu);font-style:italic;padding:6px 0}
+
+/* ── TOASTS ── */
+#toasts{
+  position:fixed;bottom:20px;right:16px;
+  display:flex;flex-direction:column-reverse;gap:7px;
+  z-index:9999;pointer-events:none;
+  width:min(300px,calc(100vw - 32px));
+}
+.toast{
+  background:var(--s3);border:1px solid var(--b);border-left:3px solid var(--red);border-radius:9px;
+  padding:10px 14px;font-size:13px;color:#fff;box-shadow:0 10px 36px rgba(0,0,0,.6);
+  pointer-events:all;animation:tIn .2s ease;word-break:break-word;
+}
+.toast.green{border-left-color:var(--gr)}
+.toast.amber{border-left-color:var(--am)}
+.toast.gold{border-left-color:var(--gold)}
+.toast.out{animation:tOut .2s ease forwards}
+@keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes tOut{from{opacity:1}to{opacity:0;transform:translateY(-5px)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .hero{padding:20px 16px 18px}
+  .hero-h1{font-size:34px}
+  .hero-top{gap:12px}
+  .kc-lbl{display:none}
+  .kc-pip{height:11px}
+  .kc{padding:5px 8px;gap:5px}
+  .sbar{padding:7px 16px}
+  .main{padding:16px 16px 60px}
+  .alert{margin:10px 16px 0}
+  .filters{gap:5px}
+  .fc-search{max-width:none;flex:1}
+  .sec-hd-top{margin-bottom:8px}
+  .ht-hd{grid-template-columns:24px 1fr 56px 64px;padding:7px 12px}
+  .ht-hd span:nth-child(5){display:none}
+  .hr{grid-template-columns:24px 1fr 56px 64px;padding:7px 12px}
+  .hdate{display:none}
+  .hm-logo,.hm-nolog{width:15px;height:15px}
+  .hm-away,.hm-home{font-size:13px}
+  .hm-at{display:none}
+  .hs{font-size:12px}
+  .std-hd,.srow{grid-template-columns:22px 26px 1fr 36px 36px 50px}
+  .std-hd span:last-child,.rstrk{display:none}
+  .std-hd{padding:7px 10px}
+  .srow{padding:7px 10px}
+  .rlogo img,.rlogo .ph{width:18px;height:18px}
+  .rn{font-size:11px}
+  .rw,.rl,.rp{font-size:11px}
+  .pg-jump{display:none}
+  .pg-info{font-size:10px}
+  .conf-grid{margin-top:20px}
+  .conf-name{font-size:18px}
+  .mbg{padding:8px}
+  .mhd{padding:13px 15px}
+  .mbody{padding:14px}
+  .mabb{font-size:18px}
+  .mscore{font-size:22px}
+  .archive-grid{grid-template-columns:1fr}
+  .ahd{padding:13px 15px}
+  .abody{padding:14px}
+}
+@media(max-width:360px){
+  .hero-h1{font-size:28px}
+  .hero-key .kc:nth-child(n+4){display:none}
+  .conf-name{font-size:16px}
+  .hm{gap:4px}
+  .hm-logo,.hm-nolog{display:none}
+}
+@media(hover:none) and (pointer:coarse){
+  .hr.clk:hover{background:transparent}
+  .hr.clk:active{background:rgba(255,255,255,.03)}
+  .srow:hover{background:transparent}
+  .srow:active{background:rgba(255,255,255,.03)}
+  .admin-btn:hover{border-color:var(--b);color:var(--mu)}
+  .admin-btn:active{border-color:rgba(232,0,29,.4);color:var(--tx)}
+  .arc-card:hover{transform:none}
+  .arc-card:active{border-color:var(--gold-mid)}
+}
+
+/* ══════════════════════════════════════════
+   VISUAL POLISH PASS (layered on top, same
+   classes/markup — no structural changes)
+══════════════════════════════════════════ */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--mu2)}
+::selection{background:rgba(255,18,51,.3);color:#fff}
+.sbar{
+  background:rgba(8,8,13,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--b2);position:sticky;top:0;z-index:50;
+}
+.hero{overflow:hidden;position:relative}
+.hero::before{
+  content:'';position:absolute;top:-40%;right:-8%;width:480px;height:480px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,18,51,.16),transparent 70%);pointer-events:none;
+}
+.hero-h1 em{
+  background:linear-gradient(180deg,var(--red2) 10%,var(--red) 90%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 20px rgba(255,18,51,.35));
+}
+.fc:focus,.field-input:focus{box-shadow:0 0 0 3px var(--red-dim);}
+.std-wrap{box-shadow:var(--shadow-sm);transition:box-shadow .2s ease;}
+.std-wrap:hover{box-shadow:var(--shadow-md);}
+.toast{box-shadow:var(--shadow-lg);}
+.modal,.admin-panel{box-shadow:var(--shadow-lg);}
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loading-bar"></div>
+
+<!-- STATUS BAR -->
+<div class="sbar">
+  <div class="sbar-left">
+    <span class="sbar-sync" id="last-sync"></span>
+    <div class="live-chip" id="live-chip">
+      <div class="ldot"></div>
+      <span id="live-lbl">Offline</span>
+    </div>
+  </div>
+  <div class="sbar-right">
+    <button class="admin-btn" id="admin-btn-top">Admin</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Season 1 · Official Standings</div>
+      <div class="hero-h1"><em>RFL</em> League Standings</div>
+      <div class="hero-sub">
+        Manually Updated <span class="hdot"></span>
+        Verified after every game <span class="hdot"></span>
+        Season 1
+      </div>
+    </div>
+    <div class="hero-key">
+      <div class="kc"><div class="kc-pip z"></div><span class="kc-code">z</span><span class="kc-lbl">Division leader</span></div>
+      <div class="kc"><div class="kc-pip x"></div><span class="kc-code">x</span><span class="kc-lbl">Clinched playoff</span></div>
+      <div class="kc"><div class="kc-pip pi"></div><span class="kc-code">pi</span><span class="kc-lbl">Play-In</span></div>
+      <div class="kc"><div class="kc-pip e"></div><span class="kc-code">e</span><span class="kc-lbl">Eliminated</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="alert" id="alert"></div>
+
+<div class="main">
+
+  <!-- VIEW TABS -->
+  <div class="view-tabs">
+    <button class="view-tab active" data-view="standings">Standings</button>
+    <button class="view-tab" data-view="history">Match History</button>
+    <button class="view-tab" data-view="refs">Referees</button>
+    <button class="view-tab" data-view="archive">Archive</button>
+  </div>
+
+  <!-- STANDINGS VIEW -->
+  <div id="view-standings">
+    <div class="conf-grid" id="conferences"></div>
+  </div>
+
+  <!-- HISTORY VIEW -->
+  <div id="view-history" class="hidden" style="margin-top:0;">
+    <div class="sec-hd" style="padding-top:18px;">
+      <div class="sec-hd-top">
+        <span class="sec-title">Match History</span>
+        <span class="sec-ct" id="hist-ct">0 games</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="filters">
+        <input class="fc fc-search" id="f-team" placeholder="Search team…" autocomplete="off" spellcheck="false">
+        <select class="fc" id="f-status">
+          <option value="">All results</option>
+          <option value="final">Final</option>
+          <option value="forfeit">Forfeit</option>
+          <option value="incomplete">No result</option>
+        </select>
+        <select class="fc" id="f-pp">
+          <option value="15">15 / page</option>
+          <option value="25" selected>25 / page</option>
+          <option value="50">50 / page</option>
+          <option value="100">100 / page</option>
+        </select>
+      </div>
+    </div>
+    <div class="ht-wrap">
+      <div class="ht-hd">
+        <span>#</span><span>Matchup</span><span>Score</span><span>Status</span><span>Date</span>
+      </div>
+      <div id="hist-rows"></div>
+    </div>
+    <div class="hist-empty" id="hist-empty" style="display:none">No results match your filters.</div>
+    <div class="pager" id="pager" style="display:none">
+      <div class="pg-info" id="pg-info"></div>
+      <div class="pg-btns" id="pg-btns"></div>
+      <div class="pg-jump">
+        <span class="pg-jlbl">Page</span>
+        <input class="pg-jin" id="pg-jump" type="number" min="1" value="1">
+      </div>
+    </div>
+  </div>
+
+  <!-- REFS VIEW -->
+  <div id="view-refs" class="hidden" style="margin-top:0;">
+    <div class="sec-hd" style="padding-top:18px;">
+      <div class="sec-hd-top">
+        <span class="sec-title">Referees</span>
+        <span class="sec-ct" id="refs-ct"></span>
+        <div class="sec-rule"></div>
+      </div>
+    </div>
+    <div class="reftbl-wrap">
+      <table class="reftbl">
+        <thead><tr><th>Referee</th><th>Games</th><th>Robux Earned</th><th>Last Active</th><th>Recent</th></tr></thead>
+        <tbody id="refs-rows"><tr><td colspan="5" class="refs-empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ARCHIVE VIEW -->
+  <div id="view-archive" class="hidden" style="margin-top:0;">
+    <div class="sec-hd" style="padding-top:18px;">
+      <div class="sec-hd-top">
+        <span class="sec-title">Season Archive</span>
+        <span class="sec-ct" id="arc-ct">0 seasons</span>
+        <div class="sec-rule"></div>
+      </div>
+    </div>
+    <div class="archive-grid" id="archive-grid"></div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- BOX SCORE MODAL -->
+<div class="mbg" id="box-modal-bg" role="dialog" aria-modal="true" aria-label="Box Score">
+  <div class="modal">
+    <div class="mhd">
+      <div class="mmatchup" id="m-matchup"></div>
+      <div class="mmeta">
+        <span class="mbadge" id="m-badge"></span>
+        <span class="mseason" id="m-season"></span>
+      </div>
+      <button class="mclose" id="m-close" aria-label="Close">✕</button>
+    </div>
+    <div class="mbody" id="m-body"></div>
+  </div>
+</div>
+
+<!-- ARCHIVE DETAIL MODAL -->
+<div class="amg" id="archive-modal-bg">
+  <div class="amodal">
+    <div class="ahd">
+      <div>
+        <div class="ahd-title" id="am-title">Season</div>
+        <div class="ahd-sub" id="am-sub"></div>
+      </div>
+      <button class="aclose" id="am-close">✕</button>
+    </div>
+    <div class="abody" id="am-body"></div>
+  </div>
+</div>
+
+<!-- ADMIN OVERLAY + PANEL -->
+<div class="admin-overlay" id="admin-overlay" onclick="closeAdmin()"></div>
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-handle"></div>
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <div class="admin-title">Admin Panel</div>
+      <div class="admin-sub" id="admin-sub-text">Enter password to unlock</div>
+    </div>
+    <button class="admin-close" onclick="closeAdmin()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- LOCK SCREEN -->
+  <div id="admin-lock-screen" class="admin-lock">
+    <div class="admin-lock-label">Password</div>
+    <div class="admin-lock-row">
+      <input type="password" class="admin-lock-input" id="admin-pass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')unlockAdmin()">
+      <button class="admin-lock-btn" onclick="unlockAdmin()">Unlock</button>
+    </div>
+  </div>
+
+  <!-- UNLOCKED -->
+  <div id="admin-unlocked" class="hidden" style="display:none;flex-direction:column;flex:1;min-height:0;">
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('games',this)">Games</button>
+      <button class="admin-tab" onclick="switchAdminTab('edit',this)">Edit Standings</button>
+      <button class="admin-tab" onclick="switchAdminTab('void',this)">Void</button>
+      <button class="admin-tab" onclick="switchAdminTab('remove',this)">Remove</button>
+      <button class="admin-tab" onclick="switchAdminTab('season',this)">Season</button>
+      <button class="admin-tab" onclick="switchAdminTab('archive',this)">Archive</button>
+      <button class="admin-tab" onclick="switchAdminTab('tools',this)">Tools</button>
+    </div>
+
+    <!-- GAMES TAB -->
+    <div id="atab-games" class="admin-body-wrap">
+      <!-- Game Picker -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">🔍</div>
+          <div>
+            <div class="admin-section-label">Find Game</div>
+            <div class="admin-section-desc">Search and click a game to auto-fill the ID below.</div>
+          </div>
+        </div>
+        <div class="admin-section-body" style="padding-bottom:8px">
+          <input class="field-input" type="text" id="gp-search" placeholder="Search team (e.g. KC, SF)…" autocomplete="off" spellcheck="false" style="width:100%;margin-bottom:8px">
+          <div id="gp-list" style="display:flex;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <!-- Add Game -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">＋</div>
+          <div>
+            <div class="admin-section-label">Add Game</div>
+            <div class="admin-section-desc">Manually enter a game result.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div class="add-game-grid">
+            <input class="field-input" type="text" id="ag-away" placeholder="Away ABB (e.g. KC)" autocomplete="off" spellcheck="false" maxlength="8" style="text-transform:uppercase">
+            <input class="field-input" type="text" id="ag-home" placeholder="Home ABB (e.g. SF)" autocomplete="off" spellcheck="false" maxlength="8" style="text-transform:uppercase">
+            <input class="field-input" type="number" id="ag-away-score" placeholder="Away Score" min="0" style="text-align:center">
+            <input class="field-input" type="number" id="ag-home-score" placeholder="Home Score" min="0" style="text-align:center">
+          </div>
+          <div class="add-game-row">
+            <select class="field-input" id="ag-status">
+              <option value="final">Final</option>
+              <option value="forfeit">Forfeit</option>
+              <option value="incomplete">No Result</option>
+            </select>
+            <button class="action-btn" id="ag-btn" style="background:rgba(91,156,246,.1);border-color:rgba(91,156,246,.25);color:var(--bl)">Add Game</button>
+          </div>
+          <div class="panel-msg" id="ag-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOID TAB -->
+    <!-- EDIT STANDINGS TAB -->
+    <div id="atab-edit" class="admin-body-wrap hidden">
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">🛠</div>
+          <div>
+            <div class="admin-section-label">Edit Team Record</div>
+            <div class="admin-section-desc">Manually set a team's wins, losses, streak, or logo. Overwrites whatever the auto-calculated record would be. Admin key required.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Team ABB</div><input class="field-input" id="es-abb" placeholder="e.g. KC" maxlength="8" style="text-transform:uppercase" list="es-abb-list"><datalist id="es-abb-list"></datalist></div>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Wins</div><input class="field-input" id="es-wins" type="number" min="0" placeholder="0"></div>
+            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Losses</div><input class="field-input" id="es-losses" type="number" min="0" placeholder="0"></div>
+          </div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Streak (optional, e.g. W3 / L2)</div><input class="field-input" id="es-streak" placeholder="leave blank to keep current"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Logo URL (optional)</div><input class="field-input" id="es-logo" placeholder="leave blank to keep current"></div>
+          <button class="gold-btn" id="es-load-btn" type="button" style="margin-bottom:6px;background:transparent;border:1px solid var(--b);color:var(--tx)">Load Current Record</button>
+          <button class="gold-btn" id="es-save-btn">Save Team Record</button>
+          <div class="panel-msg" id="es-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="atab-void" class="admin-body-wrap hidden">
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">✎</div>
+          <div>
+            <div class="admin-section-label">Void / Unvoid Result</div>
+            <div class="admin-section-desc">Enter a game ID to void or restore a match result.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div class="input-row">
+            <input class="field-input" type="text" id="void-game-id" placeholder="Game ID" autocomplete="off" spellcheck="false">
+            <button class="action-btn" id="void-btn">Void</button>
+            <button class="action-btn" id="unvoid-btn">Restore</button>
+          </div>
+          <div class="panel-msg" id="void-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REMOVE TAB -->
+    <div id="atab-remove" class="admin-body-wrap hidden">
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon amber">🗑</div>
+          <div>
+            <div class="admin-section-label">Remove Result</div>
+            <div class="admin-section-desc">Permanently delete a match result by game ID.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div class="input-row">
+            <input class="field-input" type="text" id="remove-game-id" placeholder="Game ID" autocomplete="off" spellcheck="false">
+            <button class="action-btn" id="remove-btn">Remove</button>
+          </div>
+          <div class="panel-msg" id="remove-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEASON TAB -->
+    <div id="atab-season" class="admin-body-wrap hidden">
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon gold">📦</div>
+          <div>
+            <div class="admin-section-label">Archive &amp; Start New Season</div>
+            <div class="admin-section-desc">Snapshots the current standings, match history, and referee log into the Archive tab, then resets every record to 0 to start a clean season.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Season Label</div><input class="field-input" id="arc-season-label" placeholder="e.g. Season 1"></div>
+          <div style="margin-bottom:6px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Champion ABB (optional)</div><input class="field-input" id="arc-champion" placeholder="e.g. KC" maxlength="8" style="text-transform:uppercase"></div>
+          <button class="gold-btn" id="archive-season-btn">Archive Current Season</button>
+          <div class="panel-msg" id="archive-season-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHIVE MANAGEMENT TAB -->
+    <div id="atab-archive" class="admin-body-wrap hidden">
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon gold">🗂</div>
+          <div>
+            <div class="admin-section-label">Manage Archived Seasons</div>
+            <div class="admin-section-desc">Rename, edit champion, reorder, or permanently delete past seasons. Changes save when you hit "Save Archive Changes" below.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div id="arc-admin-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+          <button class="gold-btn" id="arc-admin-save-btn">Save Archive Changes</button>
+          <div class="panel-msg" id="arc-admin-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS TAB -->
+    <div id="atab-tools" class="admin-body-wrap hidden">
+      <!-- Audit Log -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon blue">📋</div>
+          <div>
+            <div class="admin-section-label">Audit Log</div>
+            <div class="admin-section-desc">Recent game additions, voids, and restores.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <div class="audit-list" id="audit-list">
+            <div class="audit-empty">No audit entries yet.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Zero Records (keeps roster/logos) -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon amber">0️⃣</div>
+          <div>
+            <div class="admin-section-label">Zero All Records</div>
+            <div class="admin-section-desc">Sets every team to 0-0 and clears match history, but keeps your team roster and logos so you don't have to re-add them.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <button class="danger-btn" id="modal-zero">Zero All Records (Keep Roster &amp; Logos)</button>
+          <div class="panel-msg" id="zero-msg"></div>
+        </div>
+      </div>
+      <!-- Danger Zone -->
+      <div class="admin-section">
+        <div class="admin-section-hd">
+          <div class="admin-section-icon red">⚠</div>
+          <div>
+            <div class="admin-section-label">Danger Zone</div>
+            <div class="admin-section-desc">Irreversible — deletes every team AND all match history, without archiving. You will need to re-add teams/logos afterward. For most "start fresh" needs, use Zero All Records above instead.</div>
+          </div>
+        </div>
+        <div class="admin-section-body">
+          <button class="danger-btn" id="modal-reset">Reset All Standings (No Archive)</button>
+          <div class="panel-msg" id="reset-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="admin-result" class="admin-result"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+// TODO: point this at wherever rpl_server.js is actually deployed (Render/Railway/etc — a
+// long-running Node process, NOT a Vercel serverless function, since it holds SSE connections).
+const CFG={API:'https://rflstandings.onrender.com/rpl/standings',REFS_API:'https://rflstandings.onrender.com/rpl/refs',POLL:30000};
+const logo=(url,abb)=>{if(NAMES[abb])return`https://a.espncdn.com/i/teamlogos/nfl/500/${abb.toLowerCase()}.png`;if(!url)return'';if(url.includes('roblox.com'))return'';return url.startsWith('http://')?'https://'+url.slice(7):url};
+const NAMES={ARI:'Arizona Cardinals',ATL:'Atlanta Falcons',BAL:'Baltimore Ravens',BUF:'Buffalo Bills',CAR:'Carolina Panthers',CHI:'Chicago Bears',CIN:'Cincinnati Bengals',CLE:'Cleveland Browns',DAL:'Dallas Cowboys',DEN:'Denver Broncos',DET:'Detroit Lions',GB:'Green Bay Packers',HOU:'Houston Texans',IND:'Indianapolis Colts',JAX:'Jacksonville Jaguars',KC:'Kansas City Chiefs',LV:'Las Vegas Raiders',LAC:'Los Angeles Chargers',LAR:'Los Angeles Rams',MIA:'Miami Dolphins',MIN:'Minnesota Vikings',NE:'New England Patriots',NO:'New Orleans Saints',NYG:'New York Giants',NYJ:'New York Jets',PHI:'Philadelphia Eagles',PIT:'Pittsburgh Steelers',SF:'San Francisco 49ers',SEA:'Seattle Seahawks',TB:'Tampa Bay Buccaneers',TEN:'Tennessee Titans',WSH:'Washington Commanders'};
+const EAST=new Set(['BUF','MIA','NE','NYJ','BAL','CIN','CLE','PIT','HOU','IND','JAX','TEN','DEN','KC','LV','LAC']); // AFC
+const WEST=new Set(['DAL','NYG','PHI','WSH','CHI','DET','GB','MIN','ATL','CAR','NO','TB','ARI','LAR','SF','SEA']); // NFC
+
+/* Redis for the Archive feature only (standings/history/refs stay on the existing API) */
+const ARCHIVE_API = `${CFG.API.replace(/\/standings$/, '')}/archive`;
+async function rGet(){try{const r=await fetch(ARCHIVE_API);const j=await r.json();return j.data||null;}catch{return null;}}
+async function rSet(d){
+  try{
+    const r=await fetch(ARCHIVE_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword||''}`},body:JSON.stringify(d)});
+    if(!r.ok){let msg=`HTTP ${r.status}`;try{const j=await r.json();if(j?.error)msg=`${j.error} (HTTP ${r.status})`;}catch(_){}return{ok:false,error:msg};}
+    return{ok:true};
+  }catch(e){return{ok:false,error:e.message||'Network error'};}
+}
+
+let prevData=null,fails=0,lastId=null,allResults=[],pg=1,currentView='standings';
+let adminUnlocked=false,adminPassword='',currentAdminTab='games';
+let ARCHIVE=[],lastStandingsSnapshot=null,lastRefsSnapshot=null;
+
+const pct=(w,l)=>{const g=w+l;return g?(w/g).toFixed(3).replace(/^0/,''):'—'};
+const fmtDate=iso=>{if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return'—';const diff=Math.floor((Date.now()-d)/86400000);if(diff===0)return'Today';if(diff===1)return'Yest.';if(diff<7)return`${diff}d ago`;return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})};
+const timeAgo=iso=>{if(!iso)return'';const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;if(s<86400)return`${Math.floor(s/3600)}h ago`;return`${Math.floor(s/86400)}d ago`};
+
+function setLoading(on){const bar=document.getElementById('loading-bar');bar.style.width=on?'70%':'100%';if(!on)setTimeout(()=>bar.style.width='0%',300)}
+function toast(msg,c='red',dur=5000){const t=Object.assign(document.createElement('div'),{className:`toast ${c}`,textContent:msg});document.getElementById('toasts').prepend(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),240)},dur)}
+function setLive(v){const c=document.getElementById('live-chip'),l=document.getElementById('live-lbl');c.classList.toggle('on',v);l.textContent=v?'Live':'Offline'}
+function setSync(iso){document.getElementById('last-sync').textContent=iso?`Synced ${timeAgo(iso)}`:''}
+function showPanelMsg(id,text,type){const el=document.getElementById(id);if(!el)return;el.textContent=text;el.className=`panel-msg ${type} show`}
+function clearPanelMsg(id){const el=document.getElementById(id);if(!el)return;el.className='panel-msg';el.textContent=''}
+
+/* ── VIEW TABS ── */
+document.querySelectorAll('.view-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentView=tab.dataset.view;
+    document.getElementById('view-standings').classList.toggle('hidden',currentView!=='standings');
+    document.getElementById('view-history').classList.toggle('hidden',currentView!=='history');
+    document.getElementById('view-refs').classList.toggle('hidden',currentView!=='refs');
+    document.getElementById('view-archive').classList.toggle('hidden',currentView!=='archive');
+    if(currentView==='history')renderHistory();
+    if(currentView==='refs')fetchRefs();
+    if(currentView==='archive')renderArchiveGrid();
+  });
+});
+
+/* ── HISTORY ── */
+const getF=()=>{
+  const tq=document.getElementById('f-team').value.trim().toLowerCase();
+  const sq=document.getElementById('f-status').value;
+  return allResults.filter(g=>{
+    if(sq&&(g.status||'').toLowerCase()!==sq)return false;
+    if(tq){const a=(g.awayABB||'').toLowerCase(),h=(g.homeABB||'').toLowerCase();if(!a.includes(tq)&&!h.includes(tq))return false}
+    return true;
+  });
+};
+const getPP=()=>parseInt(document.getElementById('f-pp').value,10)||25;
+
+function renderHistory(){
+  const filt=getF(),pp=getPP();
+  const total=Math.max(1,Math.ceil(filt.length/pp));
+  if(pg>total)pg=total;
+  document.getElementById('hist-ct').textContent=filt.length===allResults.length?`${allResults.length} game${allResults.length!==1?'s':''}`:`${filt.length}/${allResults.length}`;
+  const start=(pg-1)*pp;
+  const slice=filt.slice(start,start+pp);
+  const rowsEl=document.getElementById('hist-rows');
+  const emptyEl=document.getElementById('hist-empty');
+  if(!filt.length){rowsEl.innerHTML='';emptyEl.style.display='block';document.getElementById('pager').style.display='none';return}
+  emptyEl.style.display='none';
+  rowsEl.innerHTML=slice.map((g,i)=>{
+    const num=filt.length-start-i;
+    const hw=g.homeScore>g.awayScore,aw=g.awayScore>g.homeScore;
+    const st=(g.status||'final').toLowerCase();
+    const isVoided=!!g.voided;
+    let bt=st.toUpperCase(),bc=st;
+    if(st==='final'&&g.quarter==='OT'){bt='OT';bc='ot'}
+    if(st==='incomplete')bt='—';
+    if(st==='forfeit')bt='FORFEIT';
+    if(isVoided){bt='VOIDED';bc='voided'}
+    const aL=logo(g.awayLogo,g.awayABB),hL=logo(g.homeLogo,g.homeABB);
+    const clk=(st==='final'||st==='forfeit')&&!isVoided;
+    return`<div class="hr st-${st}${clk?' clk':''} hr-aid${isVoided?' voided':''}" data-i="${start+i}" data-gid="${g.id}"${clk?' role="button" tabindex="0"':''}>
+      <span class="hn">${num}</span>
+      <span class="hm">
+        ${aL?`<img class="hm-logo" src="${aL}" alt="" loading="lazy">`:'<span class="hm-nolog"></span>'}
+        <span class="hm-away${hw&&!isVoided?' dim':''}">${g.awayABB||'?'}</span>
+        <span class="hm-at">@</span>
+        <span class="hm-home-wrap">
+          ${hL?`<img class="hm-logo" src="${hL}" alt="" loading="lazy">`:'<span class="hm-nolog"></span>'}
+          <span class="hm-home${aw&&!isVoided?' dim':''}">${g.homeABB||'?'}</span>
+        </span>
+      </span>
+      <span class="hs">
+        <span class="hs-a${aw&&!isVoided?' w':''}">${g.awayScore??'—'}</span>
+        <span class="hs-dash">–</span>
+        <span class="hs-h${hw&&!isVoided?' w':''}">${g.homeScore??'—'}</span>
+      </span>
+      <span class="hb"><span class="hbadge ${bc}">${bt}</span></span>
+      <span class="hdate">${fmtDate(g.timestamp)}${clk?'<span class="harrow">↗</span>':''}</span>
+    </div>`;
+  }).join('');
+  rowsEl.querySelectorAll('.hr.clk').forEach(el=>{
+    const g=filt[parseInt(el.dataset.i,10)];
+    el.addEventListener('click',()=>openModal(g));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')openModal(g)});
+  });
+  const pagerEl=document.getElementById('pager');
+  pagerEl.style.display='flex';
+  document.getElementById('pg-info').textContent=`${start+1}–${Math.min(start+pp,filt.length)} of ${filt.length}`;
+  const btnsEl=document.getElementById('pg-btns');
+  const W=2;let h='';
+  h+=`<button class="pb" id="p-prev"${pg<=1?' disabled':''}>‹ Prev</button>`;
+  const pages=[1];
+  for(let i=Math.max(2,pg-W);i<=Math.min(total-1,pg+W);i++)pages.push(i);
+  if(total>1)pages.push(total);
+  let last=0;
+  for(const p of pages){if(p-last>1)h+=`<span class="pb-ellip">…</span>`;h+=`<button class="pb${p===pg?' cur':''}" data-pg="${p}">${p}</button>`;last=p}
+  h+=`<button class="pb" id="p-next"${pg>=total?' disabled':''}>Next ›</button>`;
+  btnsEl.innerHTML=h;
+  btnsEl.querySelector('#p-prev')?.addEventListener('click',()=>{pg--;renderHistory()});
+  btnsEl.querySelector('#p-next')?.addEventListener('click',()=>{pg++;renderHistory()});
+  btnsEl.querySelectorAll('[data-pg]').forEach(b=>b.addEventListener('click',()=>{pg=parseInt(b.dataset.pg,10);renderHistory()}));
+  const ji=document.getElementById('pg-jump');
+  ji.max=total;ji.value=pg;
+}
+
+['f-team','f-status','f-pp'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{pg=1;renderHistory()}));
+document.getElementById('pg-jump').addEventListener('change',e=>{
+  const v=parseInt(e.target.value,10),tot=Math.max(1,Math.ceil(getF().length/getPP()));
+  if(v>=1&&v<=tot){pg=v;renderHistory()}else e.target.value=pg;
+});
+
+/* ── BOX SCORE MODAL ── */
+function openModal(g){
+  if(!g)return;
+  const hw=g.homeScore>g.awayScore,aw=g.awayScore>g.homeScore;
+  const st=(g.status||'final').toLowerCase();
+  const aL=logo(g.awayLogo,g.awayABB),hL=logo(g.homeLogo,g.homeABB);
+  document.getElementById('m-matchup').innerHTML=`
+    <div class="mteam">${aL?`<img src="${aL}" alt="">`:''}<span class="mabb">${g.awayABB||'?'}</span></div>
+    <span class="mscore${aw?' w':''}">${g.awayScore??'—'}</span>
+    <span class="msep">–</span>
+    <span class="mscore${hw?' w':''}">${g.homeScore??'—'}</span>
+    <div class="mteam"><span class="mabb">${g.homeABB||'?'}</span>${hL?`<img src="${hL}" alt="">`:''}</div>`;
+  const mb=document.getElementById('m-badge');
+  let bt=st.toUpperCase(),bc=st;
+  if(st==='final'&&g.quarter==='OT'){bt='FINAL/OT';bc='ot'}
+  if(st==='forfeit')bt='FORFEIT';
+  mb.textContent=bt;mb.className=`mbadge ${bc}`;
+  document.getElementById('m-season').textContent=g.season||'';
+  const potg=g.playerOfGame;
+  const pH=potg?`<div class="icard"><div class="ilbl">⭐ Player of the Game</div>
+    <div class="potg-name">${potg.name||'—'}</div>
+    <div class="potg-team">${potg.team||''}</div>
+    <div class="potg-stats">${[['PTS',potg.pts],['AST',potg.ast],['REB',potg.reb],['STL',potg.stl],['BLK',potg.blk]].map(([l,v])=>`<div class="ps"><span class="ps-v">${v??0}</span><span class="ps-l">${l}</span></div>`).join('')}</div></div>`:
+    `<div class="icard"><div class="ilbl">⭐ Player of the Game</div><p class="refs-na">Not available</p></div>`;
+  const rf=(g.referees&&g.referees!=='')?g.referees:null;
+  const rH=`<div class="icard"><div class="ilbl">📋 Referee(s)</div>${rf?`<div class="refs-txt">${rf}</div>`:'<p class="refs-na">Not listed</p>'}</div>`;
+  const bsTbl=stats=>{
+    if(!stats?.length)return`<p class="bsnone">No player stats recorded</p>`;
+    return`<div class="bstbl-wrap"><table class="bstbl">
+      <thead><tr><th>Player</th><th>PTS</th><th>AST</th><th>REB</th><th>STL</th><th>BLK</th><th>FGM</th><th>FGA</th><th>FG%</th><th>FTM</th><th>FTA</th><th>3PM</th><th>3PA</th><th>TO</th><th>PF</th><th>GRD</th></tr></thead>
+      <tbody>${stats.map(p=>{const fg=p.fga>0?Math.round(p.fgm/p.fga*100):0;return`<tr><td>${p.name||'?'}</td><td class="pts">${p.pts??0}</td><td>${p.ast??0}</td><td>${p.reb??0}</td><td>${p.stl??0}</td><td>${p.blk??0}</td><td>${p.fgm??0}</td><td>${p.fga??0}</td><td>${fg}%</td><td>${p.ftm??0}</td><td>${p.fta??0}</td><td>${p.threeM??0}</td><td>${p.threeA??0}</td><td>${p.to??0}</td><td>${p.pf??0}</td><td>${p.grade??0}</td></tr>`}).join('')}
+      </tbody></table></div>`;
+  };
+  document.getElementById('m-body').innerHTML=`
+    <div class="minfo">${pH}${rH}</div>
+    <div class="bssec"><div class="bshd">${aL?`<img src="${aL}" alt="">`:''}<span class="bsname">${g.awayABB||'Away'}</span><span class="bssc${aw?' w':''}">${g.awayScore??'—'}</span></div>${bsTbl(g.awayStats)}</div>
+    <div class="bssec"><div class="bshd">${hL?`<img src="${hL}" alt="">`:''}<span class="bsname">${g.homeABB||'Home'}</span><span class="bssc${hw?' w':''}">${g.homeScore??'—'}</span></div>${bsTbl(g.homeStats)}</div>`;
+  document.getElementById('box-modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeBoxModal(){document.getElementById('box-modal-bg').classList.remove('open');document.body.style.overflow=''}
+document.getElementById('m-close').addEventListener('click',closeBoxModal);
+document.getElementById('box-modal-bg').addEventListener('click',e=>{if(e.target.id==='box-modal-bg')closeBoxModal()});
+
+/* ── STANDINGS ── */
+function flatToConfs(teams){
+  const e=[],w=[],o=[];
+  for(const t of teams){
+    const ent={name:NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',logo:logo(t.logo,t.abb),streak:t.streak||'—'};
+    if(EAST.has(t.abb))e.push(ent);else if(WEST.has(t.abb))w.push(ent);else o.push(ent);
+  }
+  return{eastern:e,western:[...w,...o]};
+}
+const sortT=arr=>[...arr].sort((a,b)=>{const pa=parseFloat(a.pct)||0,pb=parseFloat(b.pct)||0;if(pb!==pa)return pb-pa;const ga=a.w+a.l,gb=b.w+b.l;if(gb!==ga)return gb-ga;return b.w-a.w});
+const strk=raw=>!raw||raw==='—'?`<span class="rstrk n">—</span>`:`<span class="rstrk ${raw[0]==='W'?'w':'l'}">${raw}</span>`;
+
+function renderConfs(data){
+  const el=document.getElementById('conferences');
+  const sd=Array.isArray(data.standings)?flatToConfs(data.standings):(data.standings||{eastern:[],western:[]});
+  const changed=new Set();
+  if(prevData){
+    for(const ck of['eastern','western']){
+      for(const t of(sd[ck]||[])){
+        const p=(prevData[ck]||[]).find(x=>x.abbr===t.abbr);
+        if(!p||p.w!==t.w||p.l!==t.l||p.status!==t.status||p.streak!==t.streak)changed.add(t.abbr);
+      }
+    }
+  }
+  el.innerHTML=[
+    {key:'eastern',name:'American Football Conference',cls:'east',tag:'AFC'},
+    {key:'western',name:'National Football Conference',cls:'west',tag:'NFC'},
+  ].map(c=>{
+    const teams=sortT(sd[c.key]||[]);
+    const rows=teams.map((t,i)=>{
+      const sc=t.status||'e',fl=changed.has(t.abbr)?' flash':'';
+      const cut=(i===6||i===10)?' cut':'';
+      return`<div class="srow s-${sc}${fl}${cut}">
+        <span class="rrank">${i+1}</span>
+        <span class="rlogo">${t.logo?`<img src="${t.logo}" alt="" loading="lazy">`:'<div class="ph"></div>'}</span>
+        <span>
+          <div class="rn">${t.name}</div>
+          <div class="rmeta">
+            <span class="rabb">${t.abbr}</span>
+            ${t.status?`<span class="rbadge ${sc}">${sc.toUpperCase()}</span>`:''}
+          </div>
+        </span>
+        <span class="rw">${t.w}</span>
+        <span class="rl">${t.l}</span>
+        <span class="rp">${pct(t.w,t.l)}</span>
+        ${strk(t.streak)}
+      </div>`;
+    }).join('');
+    return`<div>
+      <div class="conf-hd"><span class="conf-tag ${c.cls}">${c.tag}</span><span class="conf-name">${c.name}</span></div>
+      <div class="std-wrap">
+        <div class="std-hd"><span>#</span><span></span><span>Team</span><span>W</span><span>L</span><span>PCT</span><span>STRK</span></div>
+        ${rows}
+      </div>
+    </div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.srow.flash').forEach(r=>r.classList.remove('flash')),1900);
+  prevData=JSON.parse(JSON.stringify(sd));
+  lastStandingsSnapshot=sd;
+}
+
+/* ── REFS ── */
+async function fetchRefs(){
+  const tbody=document.getElementById('refs-rows');
+  try{
+    const res=await fetch(CFG.REFS_API,{cache:'no-store'});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const refs=data.refs||[];
+    const robuxPerGame=data.robuxPerGame||40;
+    const totalRobux=(typeof data.totalRobux==='number')?data.totalRobux:refs.reduce((s,r)=>s+(r.robux||r.games*robuxPerGame),0);
+    lastRefsSnapshot=refs;
+    document.getElementById('refs-ct').textContent=`${refs.length} referee${refs.length!==1?'s':''} · ${totalRobux.toLocaleString()} R$ paid`;
+    if(!refs.length){tbody.innerHTML='<tr><td colspan="5" class="refs-empty">No referee data yet.</td></tr>';return;}
+    tbody.innerHTML=refs.map(r=>{
+      const last=r.lastActive?new Date(r.lastActive).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+      const recent=(r.recentGames||[]).map(g=>`${g.awayABB} @ ${g.homeABB}`).join(', ')||'—';
+      const robux=(typeof r.robux==='number')?r.robux:r.games*robuxPerGame;
+      return`<tr><td><span class="ref-name">${r.name}</span></td><td><span class="ref-games-badge">${r.games}</span></td><td><span class="ref-robux-badge">${robux.toLocaleString()} R$</span></td><td>${last}</td><td style="color:var(--mu);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis">${recent}</td></tr>`;
+    }).join('');
+  }catch(e){tbody.innerHTML=`<tr><td colspan="5" class="refs-empty">Failed to load referee data.</td></tr>`;}
+}
+
+/* ── ARCHIVE ── */
+async function loadArchive(){
+  const d=await rGet();
+  ARCHIVE=Array.isArray(d)?d:[];
+}
+function renderArchiveGrid(){
+  const grid=document.getElementById('archive-grid');
+  const ct=document.getElementById('arc-ct');
+  const list=(ARCHIVE||[]).slice().sort((a,b)=>(b.archivedAt||'').localeCompare(a.archivedAt||''));
+  ct.textContent=`${list.length} season${list.length!==1?'s':''}`;
+  if(!list.length){grid.innerHTML=`<div class="arc-empty">No archived seasons yet. Use Admin → Season to archive standings once a season wraps up.</div>`;return;}
+  grid.innerHTML=list.map((s,i)=>{
+    const u=s.champion?logo(null,s.champion):null;
+    const teamCt=((s.standings?.eastern||[]).length)+((s.standings?.western||[]).length);
+    const gameCt=(s.results||[]).length;
+    return`<div class="arc-card" data-arc-i="${i}">
+      <div class="arc-hd"><span class="arc-season">${s.label||'Season'}</span><span class="arc-badge">Archived</span></div>
+      <div class="arc-body">
+        ${u?`<img class="arc-champ-logo" src="${u}" alt="">`:'<div class="arc-champ-ph"></div>'}
+        <div class="arc-champ-info">
+          <div class="arc-champ-lbl">${s.champion?'🏆 Champion':'Final Standings'}</div>
+          <div class="arc-champ-name">${s.champion||`${teamCt} teams`}</div>
+          <div class="arc-final">${gameCt} games played</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.arc-card').forEach(el=>{
+    el.addEventListener('click',()=>openArchiveModal(list[parseInt(el.dataset.arcI,10)]));
+  });
+}
+
+/* ── ADMIN: ARCHIVE MANAGEMENT (rename / edit champion / reorder / delete) ── */
+function renderAdminArchiveList(){
+  const wrap=document.getElementById('arc-admin-list');
+  if(!wrap)return;
+  if(!ARCHIVE||!ARCHIVE.length){wrap.innerHTML='<div class="audit-empty">No archived seasons yet.</div>';return}
+  wrap.innerHTML=ARCHIVE.map((s,i)=>{
+    const gameCt=(s.results||[]).length;
+    const teamCt=((s.standings?.eastern||[]).length)+((s.standings?.western||[]).length);
+    return`<div style="border:1px solid var(--b);border-radius:8px;padding:10px;background:var(--bg)">
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="field-input" style="flex:1" data-arc-field="label" data-arc-i="${i}" value="${(s.label||'').replace(/"/g,'&quot;')}" placeholder="Season label">
+        <input class="field-input" style="flex:1;text-transform:uppercase" data-arc-field="champion" data-arc-i="${i}" maxlength="8" value="${(s.champion||'').replace(/"/g,'&quot;')}" placeholder="Champion ABB">
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div style="font-size:10px;color:var(--mu)">${teamCt} teams · ${gameCt} games · archived ${fmtDate(s.archivedAt)}</div>
+        <div style="display:flex;gap:4px">
+          <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px" data-arc-act="up" data-arc-i="${i}" ${i===0?'disabled':''}>↑</button>
+          <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px" data-arc-act="down" data-arc-i="${i}" ${i===ARCHIVE.length-1?'disabled':''}>↓</button>
+          <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px" data-arc-act="del" data-arc-i="${i}">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('input[data-arc-field]').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const i=parseInt(inp.dataset.arcI,10);
+      const field=inp.dataset.arcField;
+      if(!ARCHIVE[i])return;
+      ARCHIVE[i][field]=field==='champion'?inp.value.toUpperCase():inp.value;
+    });
+  });
+  wrap.querySelectorAll('button[data-arc-act]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i=parseInt(btn.dataset.arcI,10);
+      const act=btn.dataset.arcAct;
+      if(act==='del'){
+        if(!confirm(`Delete archived season "${ARCHIVE[i].label||'Season'}"? This cannot be undone once saved.`))return;
+        ARCHIVE.splice(i,1);
+      }else if(act==='up'&&i>0){
+        [ARCHIVE[i-1],ARCHIVE[i]]=[ARCHIVE[i],ARCHIVE[i-1]];
+      }else if(act==='down'&&i<ARCHIVE.length-1){
+        [ARCHIVE[i+1],ARCHIVE[i]]=[ARCHIVE[i],ARCHIVE[i+1]];
+      }
+      renderAdminArchiveList();
+    });
+  });
+}
+
+document.getElementById('arc-admin-save-btn').addEventListener('click',async()=>{
+  clearPanelMsg('arc-admin-msg');
+  const btn=document.getElementById('arc-admin-save-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try{
+    const result=await rSet(ARCHIVE);
+    if(!result.ok)throw new Error(result.error||'Save failed');
+    showPanelMsg('arc-admin-msg','✓ Archive changes saved.','success');
+    toast('Archive updated','green',4000);
+  }catch(e){
+    showPanelMsg('arc-admin-msg',`Save failed: ${e.message||'unknown error'}`,'error');
+    console.error('[RFL] archive save failed:',e);
+  }finally{
+    btn.disabled=false;btn.textContent='Save Archive Changes';
+  }
+});
+
+function archiveStandingsTable(teams,confLabel,confCls){
+  const sorted=sortT(teams||[]);
+  if(!sorted.length)return'';
+  const rows=sorted.map((t,i)=>`<div class="amatch-row">
+      <span class="amatch-conf ${confCls}">${i+1}</span>
+      <span class="amatch-team winner">${t.logo?`<img src="${t.logo}" alt="">`:''}${t.name||t.abbr}</span>
+      <span class="amatch-series">${t.w}-${t.l} (${pct(t.w,t.l)})</span>
+    </div>`).join('');
+  return`<div class="around-block"><div class="around-hd">${confLabel}</div>${rows}</div>`;
+}
+function openArchiveModal(s){
+  if(!s)return;
+  document.getElementById('am-title').textContent=s.label||'Season';
+  document.getElementById('am-sub').textContent=`Archived ${s.archivedAt?new Date(s.archivedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}`;
+  const u=s.champion?logo(null,s.champion):null;
+  const champBanner=s.champion?`<div class="achamp-banner">
+      <span class="achamp-crown">👑</span>
+      ${u?`<img src="${u}" alt="">`:''}
+      <div><div class="achamp-text-lbl">RFL Champion</div><div class="achamp-text-name">${s.champion}</div></div>
+    </div>`:'';
+  const eastTbl=archiveStandingsTable(s.standings?.eastern,'AFC — Final Standings','east');
+  const westTbl=archiveStandingsTable(s.standings?.western,'NFC — Final Standings','west');
+  const summary=`<div class="around-block"><div class="around-hd">Season Summary</div>
+    <div class="amatch-row"><span class="amatch-team winner" style="font-family:'Inter',sans-serif;font-size:12px;letter-spacing:0;color:var(--tx2)">${(s.results||[]).length} games played${s.refs?.length?` · ${s.refs.length} referees logged`:''}</span></div>
+  </div>`;
+  document.getElementById('am-body').innerHTML=`${champBanner}<div class="arounds">${summary}${eastTbl}${westTbl}</div>`;
+  document.getElementById('archive-modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+document.getElementById('am-close').addEventListener('click',()=>{document.getElementById('archive-modal-bg').classList.remove('open');document.body.style.overflow='';});
+document.getElementById('archive-modal-bg').addEventListener('click',e=>{if(e.target.id==='archive-modal-bg'){e.currentTarget.classList.remove('open');document.body.style.overflow='';}});
+
+document.getElementById('archive-season-btn').addEventListener('click',async()=>{
+  clearPanelMsg('archive-season-msg');
+  const label=document.getElementById('arc-season-label').value.trim()||'Season';
+  const champion=document.getElementById('arc-champion').value.trim().toUpperCase();
+  if(!confirm(`Archive "${label}" with the current standings, match history, and referee log, then RESET all records to 0 to start the next season?\n\nThis cannot be undone, but the snapshot is saved permanently to the Archive tab.`))return;
+  const btn=document.getElementById('archive-season-btn');
+  btn.disabled=true;btn.textContent='Archiving…';
+  try{
+    await loadArchive();
+    const snapshot={
+      label,
+      champion:champion||'',
+      archivedAt:new Date().toISOString(),
+      standings:lastStandingsSnapshot||{eastern:[],western:[]},
+      results:allResults||[],
+      refs:lastRefsSnapshot||[]
+    };
+    ARCHIVE=[...(ARCHIVE||[]).filter(s=>s.label!==label),snapshot];
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/archive-advance'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({archive:ARCHIVE,label})
+    });
+    let data=null;try{data=await r.json();}catch(_){}
+    if(!r.ok)throw new Error(data?.error?`${data.error} (HTTP ${r.status})`:`Server error ${r.status}`);
+    showPanelMsg('archive-season-msg',`✓ "${label}" archived. All records reset for the new season.`,'success');
+    toast(`📦 ${label} archived — new season started`,'gold',6000);
+    document.getElementById('arc-season-label').value='';
+    document.getElementById('arc-champion').value='';
+    await fetchData();
+    await loadAuditLog();
+  }catch(e){
+    showPanelMsg('archive-season-msg',e.message?`Archiving failed: ${e.message}`:'Archiving failed. Check your connection and try again. Standings were NOT reset.','error');
+    console.error('[RFL] archive-advance failed:',e);
+  }finally{
+    btn.disabled=false;btn.textContent='Archive Current Season';
+  }
+});
+
+/* ── ADMIN PANEL ── */
+function openAdmin(){
+  document.getElementById('admin-overlay').classList.add('open');
+  document.getElementById('admin-panel').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAdmin(){
+  document.getElementById('admin-overlay').classList.remove('open');
+  document.getElementById('admin-panel').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('admin-btn-top').addEventListener('click',openAdmin);
+
+async function unlockAdmin(){
+  const password=document.getElementById('admin-pass').value;
+  if(!password)return;
+  const btn=document.querySelector('.admin-lock-btn');
+  btn.textContent='…';btn.disabled=true;
+  try{
+    const res=await fetch(CFG.API.replace(/\/standings$/,'/standings/auth'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${password}`},body:'{}'
+    });
+    if(res.status===401||res.status===403){
+      document.getElementById('admin-pass').style.borderColor='rgba(232,0,29,.6)';
+      toast('Wrong password','red',3000);return;
+    }
+    document.getElementById('admin-pass').style.borderColor='';
+    adminPassword=password;
+    adminUnlocked=true;
+    document.getElementById('admin-lock-screen').classList.add('hidden');
+    const ul=document.getElementById('admin-unlocked');
+    ul.classList.remove('hidden');
+    ul.style.display='flex';
+    document.getElementById('admin-sub-text').textContent='Changes apply instantly to the live site.';
+    renderGamePicker('');
+    loadAuditLog();
+    document.getElementById('arc-season-label').value=document.querySelector('.hero-eyebrow')?.textContent.split('·')[0].trim()||'';
+  }catch(e){toast('Network error — could not verify password','red',3000);}
+  finally{btn.textContent='Unlock';btn.disabled=false;}
+}
+
+function switchAdminTab(tab,btn){
+  currentAdminTab=tab;
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['games','edit','void','remove','season','archive','tools'].forEach(t=>{
+    document.getElementById(`atab-${t}`).classList.toggle('hidden',t!==tab);
+  });
+  if(tab==='tools')loadAuditLog();
+  if(tab==='edit')populateEditTeamList();
+  if(tab==='archive')renderAdminArchiveList();
+}
+
+/* ── GAME PICKER ── */
+function renderGamePicker(q){
+  const list=document.getElementById('gp-list');
+  if(!list)return;
+  const sq=(q||'').trim().toLowerCase();
+  const src=allResults.filter(g=>{
+    if(!sq)return true;
+    return(g.awayABB||'').toLowerCase().includes(sq)||(g.homeABB||'').toLowerCase().includes(sq);
+  }).slice(0,40);
+  if(!src.length){list.innerHTML=`<div class="gp-empty">No games found.</div>`;return}
+  const fmtDT=iso=>{if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return'—';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})};
+  list.innerHTML=src.map((g,i)=>{
+    const st=(g.status||'final').toLowerCase();
+    const sc=(g.homeScore??'—')+' – '+(g.awayScore??'—');
+    const badge=g.voided?'voided':st;
+    return`<div class="gp-row" data-gp-i="${i}" tabindex="0" role="button">
+      <div>
+        <div class="gp-matchup">${g.awayABB||'?'} @ ${g.homeABB||'?'}</div>
+        <div class="gp-meta">
+          <span class="gp-status ${badge}">${g.voided?'VOIDED':st.toUpperCase()}</span>
+          <span>${fmtDT(g.timestamp)}</span>
+          <span style="color:var(--mu2)">·</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu2)">${g.id}</span>
+        </div>
+      </div>
+      <div class="gp-score">${sc}</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.gp-row').forEach((el,i)=>{
+    const g=src[i];
+    const pick=()=>{
+      list.querySelectorAll('.gp-row').forEach(r=>r.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('void-game-id').value=g.id;
+      document.getElementById('remove-game-id').value=g.id;
+      clearPanelMsg('void-msg');clearPanelMsg('remove-msg');
+    };
+    el.addEventListener('click',pick);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')pick()});
+  });
+}
+document.getElementById('gp-search').addEventListener('input',e=>renderGamePicker(e.target.value));
+
+/* ── ADD GAME ── */
+document.getElementById('ag-away').addEventListener('input',function(){this.value=this.value.toUpperCase()});
+document.getElementById('ag-home').addEventListener('input',function(){this.value=this.value.toUpperCase()});
+
+document.getElementById('ag-btn').addEventListener('click',async()=>{
+  clearPanelMsg('ag-msg');
+  const away=document.getElementById('ag-away').value.trim().toUpperCase();
+  const home=document.getElementById('ag-home').value.trim().toUpperCase();
+  const awayScore=document.getElementById('ag-away-score').value;
+  const homeScore=document.getElementById('ag-home-score').value;
+  const status=document.getElementById('ag-status').value;
+  if(!away||!home){showPanelMsg('ag-msg','Enter both team abbreviations.','error');return}
+  if(away===home){showPanelMsg('ag-msg','Away and home teams must differ.','error');return}
+  if(status!=='incomplete'&&(awayScore===''||homeScore==='')){showPanelMsg('ag-msg','Enter scores for Final/Forfeit results.','error');return}
+  const scoreLine=status==='incomplete'?'(incomplete — no scores recorded)':`${awayScore||0}–${homeScore||0}`;
+  if(!confirm(`Add this game to the live standings?\n\n${away} @ ${home}\nScore: ${scoreLine}\nStatus: ${status.toUpperCase()}\n\n${status!=='incomplete'?"This will update the winning/losing team's win-loss record immediately.":'No records will change since this is marked incomplete.'}`))return;
+  const btn=document.getElementById('ag-btn');
+  btn.disabled=true;btn.textContent='Adding…';
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/add'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({awayABB:away,homeABB:home,awayScore:Number(awayScore)||0,homeScore:Number(homeScore)||0,status})
+    });
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    const data=await r.json();
+    showPanelMsg('ag-msg',`✓ Game added: ${away} ${data.result?.awayScore??''}–${data.result?.homeScore??''} ${home}`,'success');
+    document.getElementById('ag-away').value='';
+    document.getElementById('ag-home').value='';
+    document.getElementById('ag-away-score').value='';
+    document.getElementById('ag-home-score').value='';
+    toast(`Added: ${away} @ ${home}`,'green',4000);
+    await fetchData();
+    await loadAuditLog();
+  }catch(e){showPanelMsg('ag-msg',e.message||'Failed.','error')}
+  finally{btn.disabled=false;btn.textContent='Add Game'}
+});
+
+/* ── EDIT STANDINGS (manual record override, admin-key only) ── */
+document.getElementById('es-abb').addEventListener('input',function(){this.value=this.value.toUpperCase()});
+
+function populateEditTeamList(){
+  const dl=document.getElementById('es-abb-list');
+  if(!dl)return;
+  const abbs=(prevData&&prevData.standings)?prevData.standings.map(t=>t.abb):[];
+  dl.innerHTML=abbs.map(a=>`<option value="${a}">`).join('');
+}
+
+document.getElementById('es-load-btn').addEventListener('click',()=>{
+  clearPanelMsg('es-msg');
+  const abb=document.getElementById('es-abb').value.trim().toUpperCase();
+  if(!abb){showPanelMsg('es-msg','Enter a team ABB first.','error');return}
+  const t=prevData&&prevData.standings?prevData.standings.find(x=>x.abb===abb):null;
+  if(!t){showPanelMsg('es-msg',`No existing record for ${abb} — it will be created on save.`,'error');return}
+  document.getElementById('es-wins').value=t.wins??0;
+  document.getElementById('es-losses').value=t.losses??0;
+  document.getElementById('es-streak').value=t.streak&&t.streak!=='—'?t.streak:'';
+  document.getElementById('es-logo').value=t.logo||'';
+  showPanelMsg('es-msg',`Loaded current record for ${abb}.`,'success');
+});
+
+document.getElementById('es-save-btn').addEventListener('click',async()=>{
+  clearPanelMsg('es-msg');
+  const abb=document.getElementById('es-abb').value.trim().toUpperCase();
+  const wins=document.getElementById('es-wins').value;
+  const losses=document.getElementById('es-losses').value;
+  const streak=document.getElementById('es-streak').value.trim();
+  const logo=document.getElementById('es-logo').value.trim();
+  if(!abb){showPanelMsg('es-msg','Enter a team ABB.','error');return}
+  if(wins===''||losses===''){showPanelMsg('es-msg','Enter both wins and losses.','error');return}
+  if(!confirm(`Manually set ${abb} to ${wins}-${losses}${streak?` (streak ${streak})`:''}? This overwrites the auto-calculated record.`))return;
+  const btn=document.getElementById('es-save-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try{
+    const payload={abb,wins:Number(wins)||0,losses:Number(losses)||0};
+    if(streak)payload.streak=streak;
+    if(logo)payload.logo=logo;
+    // Admin-only endpoint: the server rejects this with the regular site
+    // SECRET and only accepts the ADMIN_SECRET supplied as adminPassword.
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/team'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify(payload)
+    });
+    if(r.status===401){showPanelMsg('es-msg','Unauthorized — admin key required.','error');return}
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    showPanelMsg('es-msg',`✓ ${abb} updated to ${wins}-${losses}.`,'success');
+    toast(`Edited ${abb}: ${wins}-${losses}`,'green',4000);
+    await fetchData();
+    populateEditTeamList();
+  }catch(e){showPanelMsg('es-msg',e.message||'Failed.','error')}
+  finally{btn.disabled=false;btn.textContent='Save Team Record'}
+});
+
+/* ── VOID / UNVOID ── */
+document.getElementById('void-btn').addEventListener('click',async()=>{
+  clearPanelMsg('void-msg');
+  const id=document.getElementById('void-game-id').value.trim();
+  if(!id){showPanelMsg('void-msg','Enter a game ID.','error');return}
+  const g=allResults.find(x=>String(x.id)===String(id));
+  const desc=g?`${g.awayABB} @ ${g.homeABB} (${g.awayScore}–${g.homeScore}, ${g.status})`:`game ID ${id}`;
+  if(!confirm(`Void this result?\n\n${desc}\n\nThis removes it from the win-loss calculation and recalculates standings from the remaining history. It stays in the history list marked as voided — it is not deleted.`))return;
+  document.getElementById('void-btn').disabled=true;
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/void'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({id:isNaN(id)?id:Number(id),voided:true})
+    });
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    showPanelMsg('void-msg',`✓ Game ${id} voided.`,'success');
+    document.getElementById('void-game-id').value='';
+    toast(`Game ${id} voided`,'amber',4000);
+    await fetchData();await loadAuditLog();
+  }catch(e){showPanelMsg('void-msg',e.message||'Failed.','error')}
+  finally{document.getElementById('void-btn').disabled=false}
+});
+
+document.getElementById('unvoid-btn').addEventListener('click',async()=>{
+  clearPanelMsg('void-msg');
+  const id=document.getElementById('void-game-id').value.trim();
+  if(!id){showPanelMsg('void-msg','Enter a game ID.','error');return}
+  const g=allResults.find(x=>String(x.id)===String(id));
+  const desc=g?`${g.awayABB} @ ${g.homeABB} (${g.awayScore}–${g.homeScore}, ${g.status})`:`game ID ${id}`;
+  if(!confirm(`Restore (unvoid) this result?\n\n${desc}\n\nThis adds it back into the win-loss calculation and recalculates standings to include it.`))return;
+  document.getElementById('unvoid-btn').disabled=true;
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/void'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({id:isNaN(id)?id:Number(id),voided:false})
+    });
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    showPanelMsg('void-msg',`✓ Game ${id} restored.`,'success');
+    document.getElementById('void-game-id').value='';
+    toast(`Game ${id} restored`,'green',4000);
+    await fetchData();await loadAuditLog();
+  }catch(e){showPanelMsg('void-msg',e.message||'Failed.','error')}
+  finally{document.getElementById('unvoid-btn').disabled=false}
+});
+
+/* ── REMOVE ── */
+document.getElementById('remove-btn').addEventListener('click',async()=>{
+  clearPanelMsg('remove-msg');
+  const id=document.getElementById('remove-game-id').value.trim();
+  if(!id){showPanelMsg('remove-msg','Enter a game ID.','error');return}
+  const g=allResults.find(x=>String(x.id)===String(id));
+  const desc=g?`${g.awayABB} @ ${g.homeABB} (${g.awayScore}–${g.homeScore}, ${g.status})`:`game ID ${id}`;
+  if(!confirm(`PERMANENTLY delete this result?\n\n${desc}\n\nUnlike voiding, this cannot be undone — the game is removed from history entirely and standings are recalculated without it.`))return;
+  document.getElementById('remove-btn').disabled=true;document.getElementById('remove-btn').textContent='Removing…';
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/remove'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({id:isNaN(id)?id:Number(id)})
+    });
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    showPanelMsg('remove-msg',`✓ Game ${id} removed.`,'success');
+    document.getElementById('remove-game-id').value='';
+    toast(`Game ${id} removed`,'amber',4000);
+    await fetchData();
+  }catch(e){showPanelMsg('remove-msg',e.message||'Failed.','error')}
+  finally{document.getElementById('remove-btn').disabled=false;document.getElementById('remove-btn').textContent='Remove'}
+});
+
+/* ── ZERO ALL RECORDS (keeps team roster/logos) ── */
+document.getElementById('modal-zero').addEventListener('click',async()=>{
+  clearPanelMsg('zero-msg');
+  const teamCt=(prevData&&prevData.standings)?prevData.standings.length:0;
+  if(!confirm(`This will set ALL ${teamCt} teams to 0-0, reset every streak, and permanently delete all match history.\n\nYour team roster and logos will be KEPT — you will not need to re-add teams.\n\nThis does NOT save anything to the Archive. If you want a permanent record of this season first, cancel and use Season → Archive Current Season instead.\n\nThis cannot be undone. Continue?`))return;
+  const btn=document.getElementById('modal-zero');
+  btn.disabled=true;btn.textContent='Zeroing…';
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/zero-records'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`}
+    });
+    let data=null;try{data=await r.json();}catch(_){}
+    if(!r.ok)throw new Error(data?.error?`${data.error} (HTTP ${r.status})`:`Server error ${r.status}`);
+    showPanelMsg('zero-msg',`✓ All teams zeroed to 0-0. Roster and logos kept.`,'success');
+    toast('All records zeroed to 0-0','amber',5000);
+    await fetchData();
+    await loadAuditLog();
+  }catch(e){showPanelMsg('zero-msg',`Failed: ${e.message||'unknown error'}`,'error')}
+  finally{btn.disabled=false;btn.textContent='Zero All Records (Keep Roster & Logos)'}
+});
+
+/* ── RESET ── */
+document.getElementById('modal-reset').addEventListener('click',async()=>{
+  clearPanelMsg('reset-msg');
+  if(!confirm('⚠️ This will PERMANENTLY DELETE every team (including logos) and all match history, with no archive saved.\n\nYou will have to re-add every team and logo from scratch afterward.\n\nIf you just want to start a new season with scores at 0-0, cancel and use "Zero All Records" instead, which keeps your team roster and logos.\n\nThis cannot be undone. Are you absolutely sure?'))return;
+  const btn=document.getElementById('modal-reset');
+  btn.disabled=true;btn.textContent='Resetting…';
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/reset'),{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
+      body:JSON.stringify({password:adminPassword})
+    });
+    if(!r.ok)throw new Error(`Server error ${r.status}`);
+    showPanelMsg('reset-msg','✓ Reset complete. All standings cleared.','success');
+    toast('All standings reset','amber',5000);
+    await fetchData();
+    setTimeout(closeAdmin,2500);
+  }catch(e){showPanelMsg('reset-msg','Reset failed. Check your session.','error')}
+  finally{btn.disabled=false;btn.textContent='Reset All Standings & Start New Season'}
+});
+
+/* ── AUDIT LOG ── */
+async function loadAuditLog(){
+  if(!adminUnlocked)return;
+  try{
+    const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/auditlog'),{
+      headers:{'Authorization':`Bearer ${adminPassword}`}
+    });
+    if(!r.ok)return;
+    const data=await r.json();
+    renderAuditLog(data.auditLog||[]);
+  }catch(_){}
+}
+function renderAuditLog(entries){
+  const el=document.getElementById('audit-list');
+  if(!entries.length){el.innerHTML='<div class="audit-empty">No audit entries yet.</div>';return}
+  el.innerHTML=entries.slice(0,50).map(e=>{
+    const ago=timeAgo(e.timestamp);
+    return`<div class="audit-entry">
+      <span class="audit-badge ${e.action}">${e.action}</span>
+      <div class="audit-info">
+        <div class="audit-matchup">${e.matchup}</div>
+        <div class="audit-score">${e.score}${e.status?' · '+e.status.toUpperCase():''}</div>
+      </div>
+      <span class="audit-time">${ago}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── FETCH ── */
+async function fetchData(){
+  setLoading(true);
+  try{
+    const res=await fetch(CFG.API,{cache:'no-store',headers:{Accept:'application/json'}});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    fails=0;setLive(true);setSync(data.lastUpdated||new Date().toISOString());
+    document.getElementById('alert').classList.remove('on');
+    if(data.results?.length){
+      const lat=data.results[0];
+      if(lat?.id&&lat.id!==lastId&&prevData){
+        lastId=lat.id;
+        const st=lat.status;
+        toast(`${lat.awayABB} @ ${lat.homeABB} — ${st==='final'?`${lat.awayScore}–${lat.homeScore} FINAL`:st==='forfeit'?'FORFEIT':st==='incomplete'?'NO RESULT':st.toUpperCase()}`,st==='forfeit'?'amber':'green',6000);
+      }
+      if(!lastId)lastId=data.results[0]?.id;
+    }
+    const nids=(data.results||[]).map(r=>r.id).join(',');
+    if(nids!==allResults.map(r=>r.id).join(',')){allResults=data.results||[];if(currentView==='history')renderHistory()}
+    renderConfs(data);
+  }catch(err){
+    fails++;
+    if(fails>=3){setLive(false);const a=document.getElementById('alert');a.textContent=`⚠ Standings server unreachable — showing last known data. (${err.message})`;a.classList.add('on')}
+    if(!prevData)renderConfs({standings:[]});
+  }
+  setLoading(false);
+}
+
+function connectSSE(){
+  if(typeof EventSource==='undefined')return;
+  const url=CFG.API.replace(/\/standings$/,'/standings/events');
+  const es=new EventSource(url);
+  es.addEventListener('standings',()=>fetchData());
+  es.addEventListener('result',()=>fetchData());
+  es.onerror=()=>es.close();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeAdmin();closeBoxModal();document.getElementById('archive-modal-bg').classList.remove('open');}
+});
+
+(async()=>{await loadArchive();await fetchData();setInterval(fetchData,CFG.POLL);connectSSE()})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "rfl-standings",
+  "version": "1.0.0",
+  "description": "RFL Standings API Bridge for Roblox football league (manual entry, admin-panel only)",
+  "main": "rpl_server.js",
+  "scripts": {
+    "start": "node rpl_server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
