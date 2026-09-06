@@ -10,5 +10,8 @@
     "node": ">=18.0.0"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "strip-comments": "^2.0.1"
+  }
 }

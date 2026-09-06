@@ -4,13 +4,9 @@ const http  = require("http");
 const https = require("https");
 
 const PORT         = process.env.PORT                              || 3000;
-// RPL_SECRET is legacy (used only by the old auto-report endpoint, which is
-// now disabled — see handleAutoReportDisabled below). It is NOT required to start.
 const SECRET       = (process.env.RPL_SECRET   || "").trim();
 const RESULTS_MAX  = 500;
 const ADMIN_SECRET = (process.env.ADMIN_SECRET || "").trim();
-// Upstash Redis is now the ONLY persistence layer (Supabase support removed —
-// this league is manual-entry only via the admin panel, no live game bot).
 const UPSTASH_URL   = (process.env.UPSTASH_REDIS_REST_URL   || process.env.UPSTASH_URL   || "").trim();
 const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_TOKEN || "").trim();
 const STATE_KEY     = "rfl-standings-state";
@@ -25,15 +21,6 @@ if (!UPSTASH_URL || !UPSTASH_TOKEN) {
   console.warn("[RFL] WARNING: UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN not set — standings will NOT persist across restarts.");
 }
 
-/* ── NFL team roster (Season 1 default seed) ──
-   Used to pre-populate state.teams ONE TIME on first boot only, so the admin
-   panel has every team ready to edit immediately instead of starting empty.
-   This is a static, hard-coded starting point — nothing here is ever
-   re-fetched or re-synced after boot. Every field (name, conference, logo,
-   roles) is 100% editable — and, going forward, ONLY editable — through the
-   Admin Panel's Teams tab. There is no Roblox group/API integration of any
-   kind: team metadata never updates itself, it only changes when an admin
-   types a change in and clicks Save. */
 const NFL_TEAM_INFO = {
   ARI:{name:"Arizona Cardinals",conference:"NFC"}, ATL:{name:"Atlanta Falcons",conference:"NFC"},
   BAL:{name:"Baltimore Ravens",conference:"AFC"},  BUF:{name:"Buffalo Bills",conference:"AFC"},
@@ -86,18 +73,18 @@ function broadcast(eventName, data) {
   }
 }
 
-function upstashRequest(method, path, body) {
+function upstashRequest(method, path, rawValue) {
   return new Promise((resolve, reject) => {
     if (!UPSTASH_URL || !UPSTASH_TOKEN) return resolve({ status: 0, body: {} });
     const parsed = new URL(`${UPSTASH_URL}${path}`);
-    const bodyStr = body !== undefined ? JSON.stringify(body) : null;
+    const bodyStr = rawValue !== undefined ? String(rawValue) : null;
     const options = {
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
       method,
       headers: {
         "Authorization": `Bearer ${UPSTASH_TOKEN}`,
-        "Content-Type":  "application/json",
+        "Content-Type":  "text/plain",
       },
     };
     if (bodyStr) options.headers["Content-Length"] = Buffer.byteLength(bodyStr);
@@ -115,11 +102,6 @@ function upstashRequest(method, path, body) {
   });
 }
 
-// Tracks whether this boot's load from Upstash actually succeeded. saveState()
-// refuses to write unless this is true, so a network hiccup or bad response
-// during startup can never result in a blank/seeded state getting persisted
-// over real data — the old code seeded AND saved on any failure, which is
-// what wiped a real roster down to 0-0 in the first place.
 let stateLoadedOk = false;
 
 async function loadState() {
@@ -157,15 +139,10 @@ async function saveState() {
     return;
   }
   try {
-    // Snapshot whatever is currently in Upstash to a backup key BEFORE
-    // overwriting it. This is a one-generation-back safety net: if a Reset,
-    // Archive-Advance, or bad seed gets saved, /rpl/standings/restore-backup
-    // can undo it. Best-effort — a backup failure must never block the
-    // actual save.
     try {
       const prev = await upstashRequest("GET", `/get/${STATE_KEY}`);
       if (prev.status === 200 && prev.body && prev.body.result) {
-        await upstashRequest("POST", `/set/${STATE_KEY}-backup`, { value: prev.body.result });
+        await upstashRequest("POST", `/set/${STATE_KEY}-backup`, prev.body.result);
       }
     } catch (e) { console.error("[RFL] pre-save backup failed (continuing with save):", e.message); }
 
@@ -176,17 +153,11 @@ async function saveState() {
       auditLog:    state.auditLog,
       refLog:      state.refLog,
     };
-    await upstashRequest("POST", `/set/${STATE_KEY}`, { value: JSON.stringify(payload) });
+    await upstashRequest("POST", `/set/${STATE_KEY}`, JSON.stringify(payload));
   } catch (e) { console.error("[RFL] saveState error:", e.message); }
 }
 
 async function handleRestoreBackup(req, res) {
-  // Restores state.teams/results/etc from the backup key written by the
-  // last successful saveState() call — i.e. "undo the most recent save".
-  // Admin-only. Chain two of these (if needed) to go back further only if
-  // you called it after each bad save; there is only ever ONE backup
-  // generation kept, so restoring twice in a row without a save in between
-  // will just restore the same snapshot again.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   try {
     const { status, body } = await upstashRequest("GET", `/get/${STATE_KEY}-backup`);
@@ -201,7 +172,7 @@ async function handleRestoreBackup(req, res) {
     state.refLog       = parsed.refLog     || [];
     stateLoadedOk = true;
 
-    await upstashRequest("POST", `/set/${STATE_KEY}`, { value: body.result });
+    await upstashRequest("POST", `/set/${STATE_KEY}`, body.result);
     broadcast("standings", buildPublicPayload());
 
     console.log(`[RFL] Restored from backup key: ${Object.keys(state.teams).length} teams, ${state.results.length} results.`);
@@ -261,9 +232,6 @@ function rebuildStandings() {
 function ensureTeam(abb, logo) {
   if (!abb) return;
   if (!state.teams[abb]) {
-    // Minimal placeholder only — name/conference/roles are intentionally left
-    // blank rather than guessed, so the admin notices it needs to be filled
-    // in on the Teams tab instead of silently inheriting made-up data.
     state.teams[abb] = {
       wins: 0, losses: 0, pct: "0.000", streak: "—",
       logo: logo || "", name: "", conference: "", roles: blankRoles(),
@@ -323,9 +291,6 @@ function readBody(req) {
   });
 }
 
-/* Simple in-memory rate limiter for auth/write endpoints.
-   Not distributed (resets on restart, per-instance only) but stops
-   naive brute-force / scripted abuse against a single process. */
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_HITS  = 20;
 const rateBuckets = new Map();
@@ -388,8 +353,8 @@ function parseRefs(refString) {
   if (!refString || refString === "None" || refString === "") return [];
   return refString.split(/[,;\/]/).map(r => r.trim()).filter(r => {
     if (!r) return false;
-    if (r.includes(":"))   return false; // Discord emoji format e.g. :notepad_spiral: Note
-    if (r.length > 40)     return false; // suspiciously long
+    if (r.includes(":"))   return false;
+    if (r.length > 40)     return false;
     return true;
   });
 }
@@ -405,7 +370,6 @@ function logRefActivity(refString, gameId, homeABB, awayABB, timestamp) {
 
 function buildRefStats() {
   const map = {};
-  // Derive from results (source of truth — covers all historical games)
   for (const result of [...state.results].reverse()) {
     const names = parseRefs(result.referees);
     for (const name of names) {
@@ -431,10 +395,6 @@ function handleAuth(req, res) {
   return sendJSON(res, 200, { ok: true });
 }
 
-// Automatic score reporting (from an in-game bot) is disabled for RFL Season 1.
-// All results now go through the admin panel's "Add Game" / "Team Override"
-// tools instead (see handleAddGame / handleTeamOverride below). This handler
-// is kept only so the old endpoint fails loudly and clearly, instead of 404ing.
 function handleAutoReportDisabled(req, res) {
   return sendJSON(res, 410, {
     error: "Automatic score reporting has been disabled for RFL Season 1. Use the admin panel to add games manually.",
@@ -509,9 +469,6 @@ async function handleRemoveResult(req, res) {
 }
 
 async function handleZeroRecords(req, res) {
-  // Zeroes every team's wins/losses/streak back to 0-0 and clears match
-  // history, but — unlike handleReset — KEEPS the team objects (and their
-  // logos) in state.teams so the roster doesn't need to be re-seeded.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
 
   const teamCount = Object.keys(state.teams).length;
@@ -569,10 +526,6 @@ async function handleReset(req, res) {
 }
 
 async function handleArchiveAndAdvance(req, res) {
-  // Saves the season snapshot (the full archive list, same shape the client
-  // already builds for /rpl/archive) and then wipes the live standings/results
-  // back to a clean slate, all in one admin-authorized, atomic-from-the-
-  // client's-perspective call.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   let body;
   try { body = await readBody(req); }
@@ -582,7 +535,7 @@ async function handleArchiveAndAdvance(req, res) {
   if (archive === undefined) return sendJSON(res, 422, { error: "Missing archive payload" });
 
   try {
-    await upstashRequest("POST", `/set/${ARCHIVE_KEY}`, { value: JSON.stringify(archive) });
+    await upstashRequest("POST", `/set/${ARCHIVE_KEY}`, JSON.stringify(archive));
   } catch (e) {
     console.error("[RFL] Archive save to Upstash failed — aborting reset:", e.message);
     return sendJSON(res, 500, { error: "Archive save failed — standings were NOT reset." });
@@ -630,11 +583,6 @@ function handleSSE(req, res) {
 }
 
 async function handleTeamOverride(req, res) {
-  // Manual standings edits are admin-only. The regular SECRET ("console" /
-  // bot-poster credential) is intentionally NOT accepted here — only ADMIN_SECRET.
-  // This endpoint edits an EXISTING team's record and/or metadata. It never
-  // reaches out to Roblox or any external source — every value it writes
-  // comes straight from the request body the admin panel sent.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   let body;
   try { body = await readBody(req); }
@@ -677,9 +625,6 @@ async function handleTeamOverride(req, res) {
 }
 
 async function handleAddTeam(req, res) {
-  // Creates a brand-new team from scratch. Admin-only, fully manual — the
-  // admin types in every field themselves. There is no lookup against
-  // Roblox groups, no bot import, nothing auto-filled beyond what's sent here.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   let body;
   try { body = await readBody(req); }
@@ -716,10 +661,6 @@ async function handleAddTeam(req, res) {
 }
 
 async function handleRemoveTeam(req, res) {
-  // Permanently deletes a team. Admin-only. Past game results that reference
-  // this abbreviation are left untouched in history, but the next standings
-  // rebuild will show it as an unnamed placeholder rather than silently
-  // resurrecting it — nothing is re-created from an external source.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   let body;
   try { body = await readBody(req); }
@@ -848,11 +789,10 @@ async function handleGetArchive(req, res) {
 }
 
 async function handleSetArchive(req, res) {
-  // Archive management (rename/delete/reorder seasons) is admin-only.
   if (!isAdminAuthorized(req)) return sendJSON(res, 401, { error: "Unauthorized" });
   try {
     const payload = await readBody(req);
-    await upstashRequest("POST", `/set/${ARCHIVE_KEY}`, { value: JSON.stringify(payload) });
+    await upstashRequest("POST", `/set/${ARCHIVE_KEY}`, JSON.stringify(payload));
     return sendJSON(res, 200, { ok: true });
   } catch (e) {
     console.error("[RFL] handleSetArchive error:", e.message);
