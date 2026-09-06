@@ -206,18 +206,20 @@ select.fc{
   background:linear-gradient(90deg,var(--red),transparent 55%);
 }
 .ht-hd{
-  display:grid;grid-template-columns:30px 1fr 64px 72px 64px;
-  padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--b);width:100%;
+  display:grid;grid-template-columns:34px 1fr 84px 88px 82px;
+  padding:11px 18px;background:var(--s2);border-bottom:1px solid var(--b);width:100%;
+  position:sticky;top:0;z-index:2;
 }
-.ht-hd span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.ht-hd span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
 .ht-hd span:nth-child(1){text-align:center}
 .ht-hd span:nth-child(3),.ht-hd span:nth-child(4),.ht-hd span:nth-child(5){text-align:center}
 .hr{
-  display:grid;grid-template-columns:30px 1fr 64px 72px 64px;
-  padding:9px 14px;align-items:center;
+  display:grid;grid-template-columns:34px 1fr 84px 88px 82px;
+  padding:13px 18px;align-items:center;
   border-bottom:1px solid var(--b2);
-  position:relative;transition:background .12s;cursor:default;width:100%;
+  position:relative;transition:background .12s;cursor:default;width:100%;min-height:56px;
 }
+.hr:nth-child(even){background:rgba(10,31,68,.015)}
 .hr:last-child{border-bottom:none}
 .hr.clk{cursor:pointer}
 .hr.clk:hover{background:var(--s2)}
@@ -226,19 +228,19 @@ select.fc{
 .hr.st-forfeit::before{background:var(--am)}
 .hr.st-incomplete::before{background:var(--mu2)}
 .hn{font-size:10px;color:var(--mu2);text-align:center;font-family:'JetBrains Mono',monospace}
-.hm{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden}
-.hm-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;opacity:.9}
-.hm-nolog{width:18px;height:18px;border-radius:50%;background:var(--s3);flex-shrink:0}
-.hm-away{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em;color:var(--navy);flex-shrink:0}
-.hm-away.dim{color:var(--mu)}
+.hm{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+.hm-logo{width:24px;height:24px;object-fit:contain;flex-shrink:0;opacity:.95;border-radius:3px}
+.hm-logo.nolog{width:24px;height:24px;border-radius:50%;background:var(--s3);flex-shrink:0;border:1px solid var(--b)}
+.hm-away{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em;color:var(--tx2);flex-shrink:0}
+.hm-away.win{color:var(--navy);font-weight:700}
 .hm-at{font-size:10px;color:var(--mu2);flex-shrink:0}
-.hm-home-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.hm-home{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em;color:var(--navy)}
-.hm-home.dim{color:var(--mu)}
+.hm-home-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hm-home{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.03em;color:var(--tx2)}
+.hm-home.win{color:var(--navy);font-weight:700}
 .hs{
   text-align:center;font-family:'JetBrains Mono',monospace;
-  font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;
-  white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;
+  font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;
+  white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;
 }
 .hs-a,.hs-h{color:var(--mu)}
 .hs-a.w,.hs-h.w{color:var(--win)}
@@ -267,7 +269,7 @@ select.fc{
   color:var(--mu)!important;text-decoration:line-through;text-decoration-color:rgba(179,38,30,.45);
 }
 .hr.voided .hs-a,.hr.voided .hs-h{color:var(--mu)!important;text-decoration:line-through;text-decoration-color:rgba(179,38,30,.4)}
-.hr.voided .hm-logo,.hr.voided .hm-nolog{opacity:.35;filter:grayscale(1)}
+.hr.voided .hm-logo{opacity:.35;filter:grayscale(1)}
 .hbadge.voided{
   background:rgba(179,38,30,.12);color:var(--danger);
   border:1px solid rgba(179,38,30,.3);
@@ -309,45 +311,48 @@ select.fc{
 .std-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent 55%);z-index:1}
 .std-wrap:hover{box-shadow:var(--shadow-md);}
 .std-hd{
-  display:grid;grid-template-columns:26px 30px 1fr 40px 40px 58px 52px;
-  padding:8px 12px;background:var(--s2);border-bottom:1px solid var(--b);
+  display:grid;grid-template-columns:34px 44px 1fr 48px 48px 68px 64px;
+  padding:12px 18px;background:var(--s2);border-bottom:1px solid var(--b);
+  position:sticky;top:0;z-index:2;
 }
-.std-hd span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);text-align:center}
+.std-hd span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);text-align:center}
 .std-hd span:nth-child(3){text-align:left}
 .srow{
-  display:grid;grid-template-columns:26px 30px 1fr 40px 40px 58px 52px;
-  padding:8px 12px;align-items:center;border-bottom:1px solid var(--b2);
-  position:relative;transition:background .11s;width:100%;
+  display:grid;grid-template-columns:34px 44px 1fr 48px 48px 68px 64px;
+  padding:12px 18px;align-items:center;border-bottom:1px solid var(--b2);
+  position:relative;transition:background .11s;width:100%;min-height:64px;
 }
 .srow:last-child{border-bottom:none}
+.srow:nth-child(even){background:rgba(10,31,68,.015)}
 .srow:hover{background:var(--s2)}
-.srow::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:0 2px 2px 0}
+.srow::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:4px;border-radius:0 3px 3px 0}
 .srow.s-z::before{background:var(--gold)}
 .srow.s-x::before{background:var(--gr)}
 .srow.s-pi::before{background:var(--bl)}
 @keyframes rfl{0%{background:rgba(211,18,42,.08)}100%{background:transparent}}
 .srow.flash{animation:rfl 1.8s ease forwards}
 .srow.s-e .rn,.srow.s-e .rw,.srow.s-e .rl,.srow.s-e .rp{color:var(--mu2)}
-.srow.cut::after{content:'';position:absolute;top:0;left:6px;right:6px;height:1px;background:var(--b)}
-.rrank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mu);text-align:center;font-variant-numeric:tabular-nums}
-.srow:nth-child(-n+4) .rrank{color:var(--tx2)}
+.srow.cut::after{content:'';position:absolute;top:0;left:8px;right:8px;height:1px;background:var(--b3)}
+.rrank{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--mu);text-align:center;font-variant-numeric:tabular-nums}
+.srow:nth-child(-n+4) .rrank{color:var(--navy);font-weight:700}
 .rlogo{display:flex;align-items:center;justify-content:center}
-.rlogo img{width:20px;height:20px;object-fit:contain;opacity:.88;transition:opacity .15s}
-.srow:hover .rlogo img{opacity:1}
-.rlogo .ph{width:20px;height:20px;border-radius:50%;background:var(--s3)}
-.rn{font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rmeta{display:flex;align-items:center;gap:4px;margin-top:1px}
-.rabb{font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
-.rbadge{font-size:8px;font-weight:700;letter-spacing:.06em;padding:1px 4px;border-radius:3px}
+.rlogo-img{width:34px;height:34px;object-fit:contain;opacity:.97;transition:opacity .15s,transform .15s}
+.srow:hover .rlogo-img{opacity:1;transform:scale(1.07)}
+.rlogo-img.nolog{width:34px;height:34px;border-radius:50%;background:var(--s3);border:1px solid var(--b)}
+.rteam{min-width:0;padding-left:4px}
+.rn{font-size:14px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
+.rmeta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.rabb{font-size:11px;color:var(--mu);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;font-weight:600}
+.rbadge{font-size:8.5px;font-weight:700;letter-spacing:.06em;padding:1.5px 5px;border-radius:3px}
 .rbadge.z{background:var(--gold-d);color:var(--gold)}
 .rbadge.x{background:var(--gr-d);color:var(--gr)}
 .rbadge.pi{background:var(--bl-d);color:var(--bl)}
 .rbadge.e{display:none}
-.rw,.rl,.rp{text-align:center;font-size:12px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
-.rw{color:var(--win);font-weight:600}
-.rl{color:var(--lose);font-weight:600}
-.rp{color:var(--tx2)}
-.rstrk{text-align:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.rw,.rl,.rp{text-align:center;font-size:15px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.rw{color:var(--win);font-weight:700}
+.rl{color:var(--lose);font-weight:700}
+.rp{color:var(--tx2);font-weight:600}
+.rstrk{text-align:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
 .rstrk.w{color:var(--win)}.rstrk.l{color:var(--lose)}.rstrk.n{color:var(--mu)}
 
 /* ── REFEREE TABLE ── */
@@ -400,7 +405,8 @@ select.fc{
 .aclose:hover{color:var(--navy);background:var(--s4);border-color:var(--b3)}
 .abody{overflow-y:auto;flex:1;padding:20px;display:flex;flex-direction:column;gap:18px}
 .achamp-banner{display:flex;align-items:center;gap:16px;background:var(--gold-d);border:1px solid var(--gold-mid);border-radius:10px;padding:16px 18px}
-.achamp-banner img{width:54px;height:54px;object-fit:contain;flex-shrink:0}
+.achamp-logo{width:34px;height:34px;object-fit:contain;flex-shrink:0}
+.achamp-logo.nolog{border-radius:50%;background:rgba(255,255,255,.4);border:1px solid var(--gold-mid)}
 .achamp-crown{font-size:24px}
 .achamp-text-lbl{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
 .achamp-text-name{font-family:'Oswald',sans-serif;font-weight:600;font-size:26px;letter-spacing:.03em;color:var(--navy);text-transform:uppercase}
@@ -415,7 +421,8 @@ select.fc{
 .amatch-conf.west{color:var(--bl)}
 .amatch-team{display:flex;align-items:center;gap:6px;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.03em;color:var(--mu);text-transform:uppercase}
 .amatch-team.winner{color:var(--navy)}
-.amatch-team img{width:17px;height:17px;object-fit:contain}
+.amatch-logo{width:22px;height:22px;object-fit:contain}
+.amatch-logo.nolog{border-radius:50%;background:var(--s3);border:1px solid var(--b)}
 .amatch-vs{color:var(--mu2);font-size:11px;flex-shrink:0}
 .amatch-series{margin-left:auto;font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace;flex-shrink:0}
 
@@ -635,7 +642,8 @@ select.fc{
 }
 .mmatchup{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mteam{display:flex;align-items:center;gap:8px}
-.mteam img{width:30px;height:30px;object-fit:contain;flex-shrink:0}
+.mteam-logo{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+.mteam-logo.nolog{border-radius:50%;background:var(--s3);border:1px solid var(--b)}
 .mabb{font-family:'Oswald',sans-serif;font-weight:600;font-size:22px;letter-spacing:.04em;color:var(--navy);text-transform:uppercase}
 .mscore{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--tx);min-width:20px;text-align:center}
 .mscore.w{color:var(--win)}
@@ -666,7 +674,8 @@ select.fc{
 .refs-txt{font-size:12px;color:var(--tx2);line-height:1.8}
 .refs-na{font-size:12px;color:var(--mu);font-style:italic}
 .bshd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.bshd img{width:20px;height:20px;object-fit:contain}
+.bshd-logo{width:20px;height:20px;object-fit:contain}
+.bshd-logo.nolog{border-radius:50%;background:var(--s3);border:1px solid var(--b)}
 .bsname{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.04em;color:var(--navy);text-transform:uppercase}
 .bssc{margin-left:auto;font-size:12px;font-weight:700;color:var(--mu);font-family:'JetBrains Mono',monospace}
 .bssc.w{color:var(--win)}
@@ -714,21 +723,71 @@ select.fc{
   .filters{gap:5px}
   .fc-search{max-width:none;flex:1}
   .sec-hd-top{margin-bottom:8px}
-  .ht-hd{grid-template-columns:24px 1fr 56px 64px;padding:7px 12px}
-  .ht-hd span:nth-child(5){display:none}
-  .hr{grid-template-columns:24px 1fr 56px 64px;padding:7px 12px}
-  .hdate{display:none}
-  .hm-logo,.hm-nolog{width:15px;height:15px}
-  .hm-away,.hm-home{font-size:13px}
-  .hm-at{display:none}
-  .hs{font-size:12px}
-  .std-hd,.srow{grid-template-columns:22px 26px 1fr 36px 36px 50px}
-  .std-hd span:last-child,.rstrk{display:none}
-  .std-hd{padding:7px 10px}
-  .srow{padding:7px 10px}
-  .rlogo img,.rlogo .ph{width:18px;height:18px}
-  .rn{font-size:11px}
-  .rw,.rl,.rp{font-size:11px}
+
+  /* ── Match history: card layout, nothing hidden ── */
+  .ht-hd{
+    grid-template-columns:1fr 60px 64px;
+    grid-template-areas:"lbl-match lbl-score lbl-status";
+    padding:7px 12px;
+  }
+  .ht-hd span:nth-child(1),.ht-hd span:nth-child(5){display:none}
+  .ht-hd span:nth-child(2){grid-area:lbl-match;text-align:left}
+  .ht-hd span:nth-child(3){grid-area:lbl-score}
+  .ht-hd span:nth-child(4){grid-area:lbl-status}
+  .hr{
+    grid-template-columns:22px 1fr 56px;
+    grid-template-areas:
+      "num match score"
+      "blank date badge";
+    row-gap:5px;
+    padding:10px 12px;min-height:0;
+  }
+  .hn{grid-area:num}
+  .hm{grid-area:match}
+  .hs{grid-area:score}
+  .hdate{grid-area:date;display:flex!important;justify-content:flex-start;padding-left:0}
+  .hb{grid-area:badge;text-align:right}
+  .hbadge{font-size:8.5px}
+  .hm-logo{width:20px;height:20px}
+  .hm-logo.nolog{width:20px;height:20px}
+  .hm-away,.hm-home{font-size:12.5px}
+  .hm-at{font-size:9px}
+  .hs{font-size:13px}
+
+  /* ── Standings: card layout, every stat stays visible ── */
+  .std-hd{
+    grid-template-columns:56px 1fr 1fr 1fr 1fr;
+    grid-template-areas:"lbl-blank lbl-w lbl-l lbl-p lbl-s";
+    padding:6px 12px;
+  }
+  .std-hd span:nth-child(1),.std-hd span:nth-child(2),.std-hd span:nth-child(3){display:none}
+  .std-hd span:nth-child(4){grid-area:lbl-w}
+  .std-hd span:nth-child(5){grid-area:lbl-l}
+  .std-hd span:nth-child(6){grid-area:lbl-p}
+  .std-hd span:nth-child(7){grid-area:lbl-s}
+  .srow{
+    grid-template-columns:26px 34px 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+      "rank logo team team team team"
+      "blank1 blank2 w l p s";
+    row-gap:6px;
+    padding:10px 12px;min-height:0;
+  }
+  .rrank{grid-area:rank}
+  .rlogo{grid-area:logo}
+  .rteam{grid-area:team}
+  .rw{grid-area:w}
+  .rl{grid-area:l}
+  .rp{grid-area:p}
+  .rstrk{grid-area:s;display:block}
+  .rlogo-img{width:26px;height:26px}
+  .rlogo-img.nolog{width:26px;height:26px}
+  .rn{font-size:12.5px}
+  .rmeta{gap:4px}
+  .rabb{font-size:9.5px}
+  .rw,.rl,.rp{font-size:13px}
+  .rstrk{font-size:11px}
+
   .pg-jump{display:none}
   .pg-info{font-size:10px}
   .conf-grid{margin-top:20px}
@@ -742,12 +801,22 @@ select.fc{
   .ahd{padding:13px 15px}
   .abody{padding:14px}
 }
+@media(max-width:400px){
+  .hr{grid-template-columns:20px 1fr 50px}
+  .std-hd{grid-template-columns:44px 1fr 1fr 1fr 1fr}
+  .srow{grid-template-columns:22px 30px 1fr 1fr 1fr 1fr}
+}
 @media(max-width:360px){
   .hero-h1{font-size:26px}
   .hero-key .kc:nth-child(n+4){display:none}
   .conf-name{font-size:16px}
   .hm{gap:4px}
-  .hm-logo,.hm-nolog{display:none}
+  .hm-logo{width:17px;height:17px}
+  .hm-logo.nolog{width:17px;height:17px}
+  .std-hd{grid-template-columns:40px 1fr 1fr 1fr 1fr}
+  .srow{grid-template-columns:20px 28px 1fr 1fr 1fr 1fr}
+  .rlogo-img{width:22px;height:22px}
+  .rlogo-img.nolog{width:22px;height:22px}
 }
 @media(hover:none) and (pointer:coarse){
   .hr.clk:hover{background:transparent}
@@ -1217,9 +1286,31 @@ select.fc{
 // TODO: point this at wherever rpl_server.js is actually deployed (Render/Railway/etc — a
 // long-running Node process, NOT a Vercel serverless function, since it holds SSE connections).
 const CFG={API:'https://rflstandings.onrender.com/rpl/standings',REFS_API:'https://rflstandings.onrender.com/rpl/refs',POLL:30000};
-// Logos are 100% manual — whatever the admin sets in the Teams tab is what
-// shows. No abbreviation ever auto-overrides a custom logo with a fetched one.
-const logo=(url,abb)=>{if(!url)return'';if(url.includes('roblox.com'))return'';return url.startsWith('http://')?'https://'+url.slice(7):url};
+// Logos: an admin-set URL is used first (roblox.com links are skipped since
+// they can't be hot-linked). If there's no usable admin URL — or the admin's
+// URL fails to load in the browser — we fall back to the real NFL team crest
+// for that abbreviation, so a logo is *always* shown instead of a blank spot.
+const NFL_LOGO_CODE={ARI:'ari',ATL:'atl',BAL:'bal',BUF:'buf',CAR:'car',CHI:'chi',CIN:'cin',CLE:'cle',DAL:'dal',DEN:'den',DET:'det',GB:'gb',HOU:'hou',IND:'ind',JAX:'jax',KC:'kc',LV:'lv',LAC:'lac',LAR:'lar',MIA:'mia',MIN:'min',NE:'ne',NO:'no',NYG:'nyg',NYJ:'nyj',PHI:'phi',PIT:'pit',SF:'sf',SEA:'sea',TB:'tb',TEN:'ten',WSH:'wsh'};
+const fallbackLogo=abb=>{const c=NFL_LOGO_CODE[String(abb||'').toUpperCase()];return c?`https://a.espncdn.com/i/teamlogos/nfl/500/${c}.png`:''};
+const logo=(url,abb)=>{
+  if(url&&!url.includes('roblox.com')){
+    return url.startsWith('http://')?'https://'+url.slice(7):url;
+  }
+  return fallbackLogo(abb);
+};
+// Builds a consistent <img>/placeholder for a team crest, with an automatic
+// fallback to the real NFL logo if the primary URL 404s or fails to load.
+function logoImg(url,abb,cls,size){
+  const primary=logo(url,abb);
+  const fb=fallbackLogo(abb);
+  const sizeAttr=size?` width="${size}" height="${size}"`:'';
+  if(!primary)return`<span class="${cls} nolog"${sizeAttr} aria-hidden="true"></span>`;
+  const alt=abb?abb.toUpperCase():'';
+  const onerr=(fb&&fb!==primary)
+    ?`if(!this.dataset.fb){this.dataset.fb='1';this.src='${fb}';}else{this.onerror=null;this.style.visibility='hidden';}`
+    :`this.onerror=null;this.style.visibility='hidden';`;
+  return`<img class="${cls}" src="${primary}" alt="${alt}" loading="lazy"${sizeAttr} onerror="${onerr}">`;
+}
 const NAMES={ARI:'Arizona Cardinals',ATL:'Atlanta Falcons',BAL:'Baltimore Ravens',BUF:'Buffalo Bills',CAR:'Carolina Panthers',CHI:'Chicago Bears',CIN:'Cincinnati Bengals',CLE:'Cleveland Browns',DAL:'Dallas Cowboys',DEN:'Denver Broncos',DET:'Detroit Lions',GB:'Green Bay Packers',HOU:'Houston Texans',IND:'Indianapolis Colts',JAX:'Jacksonville Jaguars',KC:'Kansas City Chiefs',LV:'Las Vegas Raiders',LAC:'Los Angeles Chargers',LAR:'Los Angeles Rams',MIA:'Miami Dolphins',MIN:'Minnesota Vikings',NE:'New England Patriots',NO:'New Orleans Saints',NYG:'New York Giants',NYJ:'New York Jets',PHI:'Philadelphia Eagles',PIT:'Pittsburgh Steelers',SF:'San Francisco 49ers',SEA:'Seattle Seahawks',TB:'Tampa Bay Buccaneers',TEN:'Tennessee Titans',WSH:'Washington Commanders'};
 const EAST=new Set(['BUF','MIA','NE','NYJ','BAL','CIN','CLE','PIT','HOU','IND','JAX','TEN','DEN','KC','LV','LAC']); // AFC
 const WEST=new Set(['DAL','NYG','PHI','WSH','CHI','DET','GB','MIN','ATL','CAR','NO','TB','ARI','LAR','SF','SEA']); // NFC
@@ -1299,17 +1390,16 @@ function renderHistory(){
     if(st==='incomplete')bt='—';
     if(st==='forfeit')bt='FORFEIT';
     if(isVoided){bt='VOIDED';bc='voided'}
-    const aL=logo(g.awayLogo,g.awayABB),hL=logo(g.homeLogo,g.homeABB);
     const clk=(st==='final'||st==='forfeit')&&!isVoided;
     return`<div class="hr st-${st}${clk?' clk':''} hr-aid${isVoided?' voided':''}" data-i="${start+i}" data-gid="${g.id}"${clk?' role="button" tabindex="0"':''}>
       <span class="hn">${num}</span>
       <span class="hm">
-        ${aL?`<img class="hm-logo" src="${aL}" alt="" loading="lazy">`:'<span class="hm-nolog"></span>'}
-        <span class="hm-away${hw&&!isVoided?' dim':''}">${g.awayABB||'?'}</span>
+        ${logoImg(g.awayLogo,g.awayABB,'hm-logo',24)}
+        <span class="hm-away${aw&&!isVoided?' win':''}">${g.awayABB||'?'}</span>
         <span class="hm-at">@</span>
         <span class="hm-home-wrap">
-          ${hL?`<img class="hm-logo" src="${hL}" alt="" loading="lazy">`:'<span class="hm-nolog"></span>'}
-          <span class="hm-home${aw&&!isVoided?' dim':''}">${g.homeABB||'?'}</span>
+          ${logoImg(g.homeLogo,g.homeABB,'hm-logo',24)}
+          <span class="hm-home${hw&&!isVoided?' win':''}">${g.homeABB||'?'}</span>
         </span>
       </span>
       <span class="hs">
@@ -1357,13 +1447,12 @@ function openModal(g){
   if(!g)return;
   const hw=g.homeScore>g.awayScore,aw=g.awayScore>g.homeScore;
   const st=(g.status||'final').toLowerCase();
-  const aL=logo(g.awayLogo,g.awayABB),hL=logo(g.homeLogo,g.homeABB);
   document.getElementById('m-matchup').innerHTML=`
-    <div class="mteam">${aL?`<img src="${aL}" alt="">`:''}<span class="mabb">${g.awayABB||'?'}</span></div>
+    <div class="mteam">${logoImg(g.awayLogo,g.awayABB,'mteam-logo',36)}<span class="mabb">${g.awayABB||'?'}</span></div>
     <span class="mscore${aw?' w':''}">${g.awayScore??'—'}</span>
     <span class="msep">–</span>
     <span class="mscore${hw?' w':''}">${g.homeScore??'—'}</span>
-    <div class="mteam"><span class="mabb">${g.homeABB||'?'}</span>${hL?`<img src="${hL}" alt="">`:''}</div>`;
+    <div class="mteam"><span class="mabb">${g.homeABB||'?'}</span>${logoImg(g.homeLogo,g.homeABB,'mteam-logo',36)}</div>`;
   const mb=document.getElementById('m-badge');
   let bt=st.toUpperCase(),bc=st;
   if(st==='final'&&g.quarter==='OT'){bt='FINAL/OT';bc='ot'}
@@ -1387,8 +1476,8 @@ function openModal(g){
   };
   document.getElementById('m-body').innerHTML=`
     <div class="minfo">${pH}${rH}</div>
-    <div class="bssec"><div class="bshd">${aL?`<img src="${aL}" alt="">`:''}<span class="bsname">${g.awayABB||'Away'}</span><span class="bssc${aw?' w':''}">${g.awayScore??'—'}</span></div>${bsTbl(g.awayStats)}</div>
-    <div class="bssec"><div class="bshd">${hL?`<img src="${hL}" alt="">`:''}<span class="bsname">${g.homeABB||'Home'}</span><span class="bssc${hw?' w':''}">${g.homeScore??'—'}</span></div>${bsTbl(g.homeStats)}</div>`;
+    <div class="bssec"><div class="bshd">${logoImg(g.awayLogo,g.awayABB,'bshd-logo',20)}<span class="bsname">${g.awayABB||'Away'}</span><span class="bssc${aw?' w':''}">${g.awayScore??'—'}</span></div>${bsTbl(g.awayStats)}</div>
+    <div class="bssec"><div class="bshd">${logoImg(g.homeLogo,g.homeABB,'bshd-logo',20)}<span class="bsname">${g.homeABB||'Home'}</span><span class="bssc${hw?' w':''}">${g.homeScore??'—'}</span></div>${bsTbl(g.homeStats)}</div>`;
   document.getElementById('box-modal-bg').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1404,7 +1493,7 @@ function flatToConfs(teams){
   const e=[],w=[],o=[];
   for(const t of teams){
     const conf=t.conference||(EAST.has(t.abb)?'AFC':WEST.has(t.abb)?'NFC':'');
-    const ent={name:t.name||NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',logo:logo(t.logo,t.abb),streak:t.streak||'—'};
+    const ent={name:t.name||NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',rawLogo:t.logo||'',streak:t.streak||'—'};
     if(conf==='AFC')e.push(ent);else if(conf==='NFC')w.push(ent);else o.push(ent);
   }
   return{eastern:e,western:[...w,...o]};
@@ -1434,8 +1523,8 @@ function renderConfs(data){
       const cut=(i===6||i===10)?' cut':'';
       return`<div class="srow s-${sc}${fl}${cut}">
         <span class="rrank">${i+1}</span>
-        <span class="rlogo">${t.logo?`<img src="${t.logo}" alt="" loading="lazy">`:'<div class="ph"></div>'}</span>
-        <span>
+        <span class="rlogo">${logoImg(t.rawLogo,t.abbr,'rlogo-img',32)}</span>
+        <span class="rteam">
           <div class="rn">${t.name}</div>
           <div class="rmeta">
             <span class="rabb">${t.abbr}</span>
@@ -1495,13 +1584,12 @@ function renderArchiveGrid(){
   ct.textContent=`${list.length} season${list.length!==1?'s':''}`;
   if(!list.length){grid.innerHTML=`<div class="arc-empty">No archived seasons yet. Use Admin → Season to archive standings once a season wraps up.</div>`;return}
   grid.innerHTML=list.map((s,i)=>{
-    const u=s.champion?logo(null,s.champion):null;
     const teamCt=((s.standings?.eastern||[]).length)+((s.standings?.western||[]).length);
     const gameCt=(s.results||[]).length;
     return`<div class="arc-card" data-arc-i="${i}">
       <div class="arc-hd"><span class="arc-season">${s.label||'Season'}</span><span class="arc-badge">Archived</span></div>
       <div class="arc-body">
-        ${u?`<img class="arc-champ-logo" src="${u}" alt="">`:'<div class="arc-champ-ph"></div>'}
+        ${s.champion?logoImg(null,s.champion,'arc-champ-logo',44):'<div class="arc-champ-ph"></div>'}
         <div class="arc-champ-info">
           <div class="arc-champ-lbl">${s.champion?'🏆 Champion':'Final Standings'}</div>
           <div class="arc-champ-name">${s.champion||`${teamCt} teams`}</div>
@@ -1586,7 +1674,7 @@ function archiveStandingsTable(teams,confLabel,confCls){
   if(!sorted.length)return'';
   const rows=sorted.map((t,i)=>`<div class="amatch-row">
       <span class="amatch-conf ${confCls}">${i+1}</span>
-      <span class="amatch-team winner">${t.logo?`<img src="${t.logo}" alt="">`:''}${t.name||t.abbr}</span>
+      <span class="amatch-team winner">${logoImg(t.logo,t.abbr,'amatch-logo',22)}${t.name||t.abbr}</span>
       <span class="amatch-series">${t.w}-${t.l} (${pct(t.w,t.l)})</span>
     </div>`).join('');
   return`<div class="around-block"><div class="around-hd">${confLabel}</div>${rows}</div>`;
@@ -1595,10 +1683,9 @@ function openArchiveModal(s){
   if(!s)return;
   document.getElementById('am-title').textContent=s.label||'Season';
   document.getElementById('am-sub').textContent=`Archived ${s.archivedAt?new Date(s.archivedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}`;
-  const u=s.champion?logo(null,s.champion):null;
   const champBanner=s.champion?`<div class="achamp-banner">
       <span class="achamp-crown">👑</span>
-      ${u?`<img src="${u}" alt="">`:''}
+      ${logoImg(null,s.champion,'achamp-logo',34)}
       <div><div class="achamp-text-lbl">RFL Champion</div><div class="achamp-text-name">${s.champion}</div></div>
     </div>`:'';
   const eastTbl=archiveStandingsTable(s.standings?.eastern,'AFC — Final Standings','east');
