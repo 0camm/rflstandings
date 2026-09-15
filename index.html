@@ -311,14 +311,14 @@ select.fc{
 .std-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent 55%);z-index:1}
 .std-wrap:hover{box-shadow:var(--shadow-md);}
 .std-hd{
-  display:grid;grid-template-columns:34px 44px 1fr 48px 48px 68px 64px;
+  display:grid;grid-template-columns:34px 44px 1fr 40px 40px 40px 68px 64px;
   padding:12px 18px;background:var(--s2);border-bottom:1px solid var(--b);
   position:sticky;top:0;z-index:2;
 }
 .std-hd span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);text-align:center}
 .std-hd span:nth-child(3){text-align:left}
 .srow{
-  display:grid;grid-template-columns:34px 44px 1fr 48px 48px 68px 64px;
+  display:grid;grid-template-columns:34px 44px 1fr 40px 40px 40px 68px 64px;
   padding:12px 18px;align-items:center;border-bottom:1px solid var(--b2);
   position:relative;transition:background .11s;width:100%;min-height:64px;
 }
@@ -331,7 +331,7 @@ select.fc{
 .srow.s-pi::before{background:var(--bl)}
 @keyframes rfl{0%{background:rgba(211,18,42,.08)}100%{background:transparent}}
 .srow.flash{animation:rfl 1.8s ease forwards}
-.srow.s-e .rn,.srow.s-e .rw,.srow.s-e .rl,.srow.s-e .rp{color:var(--mu2)}
+.srow.s-e .rn,.srow.s-e .rw,.srow.s-e .rl,.srow.s-e .rt,.srow.s-e .rp{color:var(--mu2)}
 .srow.cut::after{content:'';position:absolute;top:0;left:8px;right:8px;height:1px;background:var(--b3)}
 .rrank{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--mu);text-align:center;font-variant-numeric:tabular-nums}
 .srow:nth-child(-n+4) .rrank{color:var(--navy);font-weight:700}
@@ -348,9 +348,10 @@ select.fc{
 .rbadge.x{background:var(--gr-d);color:var(--gr)}
 .rbadge.pi{background:var(--bl-d);color:var(--bl)}
 .rbadge.e{display:none}
-.rw,.rl,.rp{text-align:center;font-size:15px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.rw,.rl,.rt,.rp{text-align:center;font-size:15px;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
 .rw{color:var(--win);font-weight:700}
 .rl{color:var(--lose);font-weight:700}
+.rt{color:var(--mu);font-weight:700}
 .rp{color:var(--tx2);font-weight:600}
 .rstrk{text-align:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
 .rstrk.w{color:var(--win)}.rstrk.l{color:var(--lose)}.rstrk.n{color:var(--mu)}
@@ -591,6 +592,7 @@ select.fc{
 .gp-status{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
 .gp-status.final{background:var(--gr-d);color:var(--gr)}
 .gp-status.forfeit{background:var(--am-d);color:var(--am)}
+.gp-status.tie{background:var(--s3);color:var(--bl)}
 .gp-status.voided{background:rgba(179,38,30,.08);color:var(--danger)}
 .gp-status.incomplete{background:var(--s3);color:var(--mu)}
 .gp-empty{font-size:12px;color:var(--mu);text-align:center;padding:14px 0;font-style:italic}
@@ -756,20 +758,21 @@ select.fc{
 
   /* ── Standings: card layout, every stat stays visible ── */
   .std-hd{
-    grid-template-columns:56px 1fr 1fr 1fr 1fr;
-    grid-template-areas:"lbl-blank lbl-w lbl-l lbl-p lbl-s";
+    grid-template-columns:56px 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas:"lbl-blank lbl-w lbl-l lbl-t lbl-p lbl-s";
     padding:6px 12px;
   }
   .std-hd span:nth-child(1),.std-hd span:nth-child(2),.std-hd span:nth-child(3){display:none}
   .std-hd span:nth-child(4){grid-area:lbl-w}
   .std-hd span:nth-child(5){grid-area:lbl-l}
-  .std-hd span:nth-child(6){grid-area:lbl-p}
-  .std-hd span:nth-child(7){grid-area:lbl-s}
+  .std-hd span:nth-child(6){grid-area:lbl-t}
+  .std-hd span:nth-child(7){grid-area:lbl-p}
+  .std-hd span:nth-child(8){grid-area:lbl-s}
   .srow{
-    grid-template-columns:26px 34px 1fr 1fr 1fr 1fr;
+    grid-template-columns:26px 34px 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas:
-      "rank logo team team team team"
-      "blank1 blank2 w l p s";
+      "rank logo team team team team team"
+      "blank1 blank2 w l t p s";
     row-gap:6px;
     padding:10px 12px;min-height:0;
   }
@@ -778,6 +781,7 @@ select.fc{
   .rteam{grid-area:team}
   .rw{grid-area:w}
   .rl{grid-area:l}
+  .rt{grid-area:t}
   .rp{grid-area:p}
   .rstrk{grid-area:s;display:block}
   .rlogo-img{width:26px;height:26px}
@@ -785,7 +789,7 @@ select.fc{
   .rn{font-size:12.5px}
   .rmeta{gap:4px}
   .rabb{font-size:9.5px}
-  .rw,.rl,.rp{font-size:13px}
+  .rw,.rl,.rt,.rp{font-size:13px}
   .rstrk{font-size:11px}
 
   .pg-jump{display:none}
@@ -907,6 +911,7 @@ select.fc{
         <select class="fc" id="f-status">
           <option value="">All results</option>
           <option value="final">Final</option>
+          <option value="tie">Tie</option>
           <option value="forfeit">Forfeit</option>
           <option value="incomplete">No result</option>
         </select>
@@ -1067,6 +1072,7 @@ select.fc{
           <div class="add-game-row">
             <select class="field-input" id="ag-status">
               <option value="final">Final</option>
+              <option value="tie">Tie</option>
               <option value="forfeit">Forfeit</option>
               <option value="incomplete">No Result</option>
             </select>
@@ -1139,6 +1145,7 @@ select.fc{
           <div style="display:flex;gap:8px;margin-bottom:6px">
             <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Wins</div><input class="field-input" id="tm-wins" type="number" min="0" placeholder="0"></div>
             <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Losses</div><input class="field-input" id="tm-losses" type="number" min="0" placeholder="0"></div>
+            <div style="flex:1"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Ties</div><input class="field-input" id="tm-ties" type="number" min="0" placeholder="0"></div>
           </div>
           <div style="margin-bottom:12px"><div class="flbl" style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;">Streak (e.g. W3 / L2)</div><input class="field-input" id="tm-streak" placeholder="leave blank to keep current"></div>
 
@@ -1330,7 +1337,7 @@ let prevData=null,fails=0,lastId=null,allResults=[],pg=1,currentView='standings'
 let adminUnlocked=false,adminPassword='',currentAdminTab='games';
 let ARCHIVE=[],lastStandingsSnapshot=null,lastRefsSnapshot=null;
 
-const pct=(w,l)=>{const g=w+l;return g?(w/g).toFixed(3).replace(/^0/,''):'—'};
+const pct=(w,l,t)=>{t=t||0;const g=w+l+t;return g?((w+0.5*t)/g).toFixed(3).replace(/^0/,''):'—'};
 const fmtDate=iso=>{if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return'—';const diff=Math.floor((Date.now()-d)/86400000);if(diff===0)return'Today';if(diff===1)return'Yest.';if(diff<7)return`${diff}d ago`;return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})};
 const timeAgo=iso=>{if(!iso)return'';const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;if(s<86400)return`${Math.floor(s/3600)}h ago`;return`${Math.floor(s/86400)}d ago`};
 
@@ -1493,12 +1500,12 @@ function flatToConfs(teams){
   const e=[],w=[],o=[];
   for(const t of teams){
     const conf=t.conference||(EAST.has(t.abb)?'AFC':WEST.has(t.abb)?'NFC':'');
-    const ent={name:t.name||NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,pct:t.pct||'0.000',status:t.status||'',rawLogo:t.logo||'',streak:t.streak||'—'};
+    const ent={name:t.name||NAMES[t.abb]||t.abb,abbr:t.abb,w:t.wins||0,l:t.losses||0,t:t.ties||0,pct:t.pct||'0.000',status:t.status||'',rawLogo:t.logo||'',streak:t.streak||'—'};
     if(conf==='AFC')e.push(ent);else if(conf==='NFC')w.push(ent);else o.push(ent);
   }
   return{eastern:e,western:[...w,...o]};
 }
-const sortT=arr=>[...arr].sort((a,b)=>{const pa=parseFloat(a.pct)||0,pb=parseFloat(b.pct)||0;if(pb!==pa)return pb-pa;const ga=a.w+a.l,gb=b.w+b.l;if(gb!==ga)return gb-ga;return b.w-a.w});
+const sortT=arr=>[...arr].sort((a,b)=>{const pa=parseFloat(a.pct)||0,pb=parseFloat(b.pct)||0;if(pb!==pa)return pb-pa;const ga=a.w+a.l+(a.t||0),gb=b.w+b.l+(b.t||0);if(gb!==ga)return gb-ga;return b.w-a.w});
 const strk=raw=>!raw||raw==='—'?`<span class="rstrk n">—</span>`:`<span class="rstrk ${raw[0]==='W'?'w':'l'}">${raw}</span>`;
 
 function renderConfs(data){
@@ -1509,7 +1516,7 @@ function renderConfs(data){
     for(const ck of['eastern','western']){
       for(const t of(sd[ck]||[])){
         const p=(prevData[ck]||[]).find(x=>x.abbr===t.abbr);
-        if(!p||p.w!==t.w||p.l!==t.l||p.status!==t.status||p.streak!==t.streak)changed.add(t.abbr);
+        if(!p||p.w!==t.w||p.l!==t.l||p.t!==t.t||p.status!==t.status||p.streak!==t.streak)changed.add(t.abbr);
       }
     }
   }
@@ -1533,14 +1540,15 @@ function renderConfs(data){
         </span>
         <span class="rw">${t.w}</span>
         <span class="rl">${t.l}</span>
-        <span class="rp">${pct(t.w,t.l)}</span>
+        <span class="rt">${t.t||0}</span>
+        <span class="rp">${pct(t.w,t.l,t.t)}</span>
         ${strk(t.streak)}
       </div>`;
     }).join('');
     return`<div>
       <div class="conf-hd"><span class="conf-tag ${c.cls}">${c.tag}</span><span class="conf-name">${c.name}</span></div>
       <div class="std-wrap">
-        <div class="std-hd"><span>#</span><span></span><span>Team</span><span>W</span><span>L</span><span>PCT</span><span>STRK</span></div>
+        <div class="std-hd"><span>#</span><span></span><span>Team</span><span>W</span><span>L</span><span>T</span><span>PCT</span><span>STRK</span></div>
         ${rows}
       </div>
     </div>`;
@@ -1675,7 +1683,7 @@ function archiveStandingsTable(teams,confLabel,confCls){
   const rows=sorted.map((t,i)=>`<div class="amatch-row">
       <span class="amatch-conf ${confCls}">${i+1}</span>
       <span class="amatch-team winner">${logoImg(t.logo,t.abbr,'amatch-logo',22)}${t.name||t.abbr}</span>
-      <span class="amatch-series">${t.w}-${t.l} (${pct(t.w,t.l)})</span>
+      <span class="amatch-series">${t.w}-${t.l}${t.t?`-${t.t}`:''} (${pct(t.w,t.l,t.t)})</span>
     </div>`).join('');
   return`<div class="around-block"><div class="around-hd">${confLabel}</div>${rows}</div>`;
 }
@@ -1847,9 +1855,10 @@ document.getElementById('ag-btn').addEventListener('click',async()=>{
   const status=document.getElementById('ag-status').value;
   if(!away||!home){showPanelMsg('ag-msg','Enter both team abbreviations.','error');return}
   if(away===home){showPanelMsg('ag-msg','Away and home teams must differ.','error');return}
-  if(status!=='incomplete'&&(awayScore===''||homeScore==='')){showPanelMsg('ag-msg','Enter scores for Final/Forfeit results.','error');return}
+  if(status!=='incomplete'&&(awayScore===''||homeScore==='')){showPanelMsg('ag-msg','Enter scores for Final/Tie/Forfeit results.','error');return}
+  if(status==='tie'&&Number(awayScore)!==Number(homeScore)){showPanelMsg('ag-msg','A tie requires equal scores.','error');return}
   const scoreLine=status==='incomplete'?'(incomplete — no scores recorded)':`${awayScore||0}–${homeScore||0}`;
-  if(!confirm(`Add this game to the live standings?\n\n${away} @ ${home}\nScore: ${scoreLine}\nStatus: ${status.toUpperCase()}\n\n${status!=='incomplete'?"This will update the winning/losing team's win-loss record immediately.":'No records will change since this is marked incomplete.'}`))return;
+  if(!confirm(`Add this game to the live standings?\n\n${away} @ ${home}\nScore: ${scoreLine}\nStatus: ${status.toUpperCase()}\n\n${status!=='incomplete'?"This will update both teams' win-loss-tie records immediately.":'No records will change since this is marked incomplete.'}`))return;
   const btn=document.getElementById('ag-btn');
   btn.disabled=true;btn.textContent='Adding…';
   try{
@@ -1893,6 +1902,7 @@ function tmClearForm(){
   document.getElementById('tm-coach').value='';
   document.getElementById('tm-wins').value='';
   document.getElementById('tm-losses').value='';
+  document.getElementById('tm-ties').value='';
   document.getElementById('tm-streak').value='';
   document.getElementById('tm-save-btn').textContent='Add Team';
   document.getElementById('tm-delete-btn').style.display='none';
@@ -1917,6 +1927,7 @@ function tmLoadTeam(abb){
   document.getElementById('tm-coach').value=t.roles?.headCoach||'';
   document.getElementById('tm-wins').value=t.wins??0;
   document.getElementById('tm-losses').value=t.losses??0;
+  document.getElementById('tm-ties').value=t.ties??0;
   document.getElementById('tm-streak').value=t.streak&&t.streak!=='—'?t.streak:'';
   document.getElementById('tm-save-btn').textContent='Save Changes';
   document.getElementById('tm-delete-btn').style.display='inline-flex';
@@ -1966,6 +1977,7 @@ document.getElementById('tm-save-btn').addEventListener('click',async()=>{
   const headCoach=document.getElementById('tm-coach').value.trim();
   const wins=document.getElementById('tm-wins').value;
   const losses=document.getElementById('tm-losses').value;
+  const ties=document.getElementById('tm-ties').value;
   const streak=document.getElementById('tm-streak').value.trim();
 
   if(!abb){showPanelMsg('tm-msg','Enter a team abbreviation.','error');return}
@@ -1979,6 +1991,7 @@ document.getElementById('tm-save-btn').addEventListener('click',async()=>{
     ?{abb,name,conference,logo:logoUrl,roles:{owner,gm,headCoach}}
     :{abb,name,conference:conference||undefined,logo:logoUrl,roles:{owner,gm,headCoach}};
   if(wins!=='')payload.wins=Number(wins)||0;
+  if(ties!=='')payload.ties=Number(ties)||0;
   if(losses!=='')payload.losses=Number(losses)||0;
   if(streak)payload.streak=streak;
 
