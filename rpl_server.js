@@ -46,7 +46,7 @@ function seedRoster() {
   for (const abb of NFL_TEAMS) {
     const info = NFL_TEAM_INFO[abb];
     state.teams[abb] = {
-      wins: 0, losses: 0, pct: "0.000", streak: "—",
+      wins: 0, losses: 0, ties: 0, pct: "0.000", streak: "—",
       logo: nflLogo(abb),
       name: info.name,
       conference: info.conference,
@@ -201,6 +201,7 @@ function rebuildStandings() {
   for (const abb of Object.keys(state.teams)) {
     state.teams[abb].wins = 0;
     state.teams[abb].losses = 0;
+    state.teams[abb].ties = 0;
     state.teams[abb].pct = "0.000";
     state.teams[abb].streak = "—";
   }
@@ -208,6 +209,14 @@ function rebuildStandings() {
   for (const r of ordered) {
     if (r.voided) continue;
     if (!isTerminalStatus(r.status)) continue;
+
+    if (r.status === "tie" || (r.status === "final" && r.homeScore === r.awayScore)) {
+      ensureTeam(r.homeABB, r.homeLogo);
+      ensureTeam(r.awayABB, r.awayLogo);
+      recordTie(r.homeABB, r.awayABB);
+      continue;
+    }
+
     let winnerABB = r.winnerABB;
     if (!winnerABB && r.status === "final") {
       if (r.homeScore > r.awayScore) winnerABB = r.homeABB;
@@ -219,13 +228,11 @@ function rebuildStandings() {
     ensureTeam(loserABB,  loserABB  === r.homeABB ? r.homeLogo : r.awayLogo);
     state.teams[winnerABB].wins += 1;
     state.teams[loserABB].losses += 1;
-    state.teams[winnerABB].streak = updateStreak(state.teams[winnerABB].streak, true);
-    state.teams[loserABB].streak  = updateStreak(state.teams[loserABB].streak, false);
+    state.teams[winnerABB].streak = updateStreak(state.teams[winnerABB].streak, "W");
+    state.teams[loserABB].streak  = updateStreak(state.teams[loserABB].streak, "L");
   }
   for (const abb of Object.keys(state.teams)) {
-    const t = state.teams[abb];
-    const total = t.wins + t.losses;
-    t.pct = total > 0 ? (t.wins / total).toFixed(3) : "0.000";
+    recalcPct(state.teams[abb]);
   }
 }
 
@@ -233,11 +240,12 @@ function ensureTeam(abb, logo) {
   if (!abb) return;
   if (!state.teams[abb]) {
     state.teams[abb] = {
-      wins: 0, losses: 0, pct: "0.000", streak: "—",
+      wins: 0, losses: 0, ties: 0, pct: "0.000", streak: "—",
       logo: logo || "", name: "", conference: "", roles: blankRoles(),
     };
-  } else if (logo) {
-    state.teams[abb].logo = logo;
+  } else {
+    if (state.teams[abb].ties === undefined) state.teams[abb].ties = 0;
+    if (logo) state.teams[abb].logo = logo;
   }
 }
 
@@ -255,23 +263,36 @@ function sanitizeRoles(r) {
   };
 }
 
+function recalcPct(t) {
+  const total = t.wins + t.losses + (t.ties || 0);
+  t.pct = total > 0 ? ((t.wins + 0.5 * (t.ties || 0)) / total).toFixed(3) : "0.000";
+}
+
 function updateRecord(winnerABB, loserABB) {
   if (!winnerABB || !loserABB) return;
   ensureTeam(winnerABB);
   ensureTeam(loserABB);
   state.teams[winnerABB].wins  += 1;
   state.teams[loserABB].losses += 1;
-  state.teams[winnerABB].streak = updateStreak(state.teams[winnerABB].streak, true);
-  state.teams[loserABB].streak  = updateStreak(state.teams[loserABB].streak, false);
-  for (const abb of [winnerABB, loserABB]) {
-    const t = state.teams[abb];
-    const total = t.wins + t.losses;
-    t.pct = total > 0 ? (t.wins / total).toFixed(3) : "0.000";
-  }
+  state.teams[winnerABB].streak = updateStreak(state.teams[winnerABB].streak, "W");
+  state.teams[loserABB].streak  = updateStreak(state.teams[loserABB].streak, "L");
+  recalcPct(state.teams[winnerABB]);
+  recalcPct(state.teams[loserABB]);
 }
 
-function updateStreak(current, won) {
-  const letter = won ? "W" : "L";
+function recordTie(aABB, bABB) {
+  if (!aABB || !bABB) return;
+  ensureTeam(aABB);
+  ensureTeam(bABB);
+  state.teams[aABB].ties += 1;
+  state.teams[bABB].ties += 1;
+  state.teams[aABB].streak = updateStreak(state.teams[aABB].streak, "T");
+  state.teams[bABB].streak = updateStreak(state.teams[bABB].streak, "T");
+  recalcPct(state.teams[aABB]);
+  recalcPct(state.teams[bABB]);
+}
+
+function updateStreak(current, letter) {
   if (!current || current === "—") return `${letter}1`;
   const curLetter = current[0];
   const curNum    = parseInt(current.slice(1), 10) || 0;
@@ -332,7 +353,7 @@ const GAME_SESSION_WINDOW = 5 * 60 * 1000;
 const recentTerminalGames = new Map();
 
 function makeMatchupKey(homeABB, awayABB) { return [homeABB, awayABB].sort().join("|"); }
-function isTerminalStatus(status) { return status === "final" || status === "forfeit"; }
+function isTerminalStatus(status) { return status === "final" || status === "forfeit" || status === "tie"; }
 
 function isDuplicateTerminal(homeABB, awayABB, status) {
   if (!isTerminalStatus(status)) return false;
@@ -475,6 +496,7 @@ async function handleZeroRecords(req, res) {
   for (const abb of Object.keys(state.teams)) {
     state.teams[abb].wins   = 0;
     state.teams[abb].losses = 0;
+    state.teams[abb].ties   = 0;
     state.teams[abb].pct    = "0.000";
     state.teams[abb].streak = "—";
   }
@@ -588,7 +610,7 @@ async function handleTeamOverride(req, res) {
   try { body = await readBody(req); }
   catch (e) { return sendJSON(res, 400, { error: "Bad JSON" }); }
 
-  const { abb: rawAbb, wins, losses, streak, logo, name, conference, roles } = body;
+  const { abb: rawAbb, wins, losses, ties, streak, logo, name, conference, roles } = body;
   const abb = sanitizeStr(rawAbb, 8).toUpperCase();
   if (!abb) return sendJSON(res, 422, { error: "Missing abb" });
   if (conference !== undefined && conference !== "" && !VALID_CONFERENCES.has(conference)) {
@@ -599,15 +621,16 @@ async function handleTeamOverride(req, res) {
   const t = state.teams[abb];
   if (wins       !== undefined) t.wins       = Math.max(0, parseInt(wins, 10) || 0);
   if (losses     !== undefined) t.losses     = Math.max(0, parseInt(losses, 10) || 0);
+  if (ties       !== undefined) t.ties       = Math.max(0, parseInt(ties, 10) || 0);
   if (streak     !== undefined) t.streak     = sanitizeStr(streak, 10) || "—";
   if (logo       !== undefined) t.logo       = sanitizeStr(logo, 500);
   if (name       !== undefined) t.name       = sanitizeStr(name, 80);
   if (conference !== undefined) t.conference = conference;
   if (roles      !== undefined) t.roles      = sanitizeRoles(roles);
   if (!t.roles) t.roles = blankRoles();
+  if (t.ties === undefined) t.ties = 0;
 
-  const total = t.wins + t.losses;
-  t.pct = total > 0 ? (t.wins / total).toFixed(3) : "0.000";
+  recalcPct(t);
   state.lastUpdated = new Date().toISOString();
 
   await saveState();
@@ -615,7 +638,7 @@ async function handleTeamOverride(req, res) {
 
   state.auditLog.unshift({
     action: "team_edited", gameId: null, matchup: abb,
-    score: `${t.wins}W-${t.losses}L`, status: t.conference || "",
+    score: `${t.wins}W-${t.losses}L-${t.ties || 0}T`, status: t.conference || "",
     timestamp: new Date().toISOString(),
   });
   if (state.auditLog.length > 200) state.auditLog.length = 200;
@@ -640,7 +663,7 @@ async function handleAddTeam(req, res) {
   if (state.teams[abb]) return sendJSON(res, 409, { error: `Team "${abb}" already exists — edit it instead of adding it again.` });
 
   state.teams[abb] = {
-    wins: 0, losses: 0, pct: "0.000", streak: "—",
+    wins: 0, losses: 0, ties: 0, pct: "0.000", streak: "—",
     logo: sanitizeStr(body.logo, 500),
     name, conference,
     roles: sanitizeRoles(body.roles),
@@ -694,8 +717,8 @@ function buildPublicPayload() {
       const pctA = parseFloat(a.pct) || 0;
       const pctB = parseFloat(b.pct) || 0;
       if (pctB !== pctA) return pctB - pctA;
-      const gpA = a.wins + a.losses;
-      const gpB = b.wins + b.losses;
+      const gpA = a.wins + a.losses + (a.ties || 0);
+      const gpB = b.wins + b.losses + (b.ties || 0);
       if (gpB !== gpA) return gpB - gpA;
       return b.wins - a.wins;
     });
@@ -712,7 +735,7 @@ async function handleAddGame(req, res) {
   if (!homeABB || !awayABB || !status)
     return sendJSON(res, 422, { error: "Missing required fields: homeABB, awayABB, status" });
 
-  const safeStatus = ["final", "forfeit", "incomplete"].includes(status) ? status : "final";
+  const safeStatus = ["final", "forfeit", "tie", "incomplete"].includes(status) ? status : "final";
   const hs  = parseInt(homeScore, 10) || 0;
   const as_ = parseInt(awayScore, 10) || 0;
 
@@ -721,11 +744,15 @@ async function handleAddGame(req, res) {
 
   let winnerABB = null;
   if (isTerminalStatus(safeStatus)) {
-    if (hs > as_)       winnerABB = homeABB;
-    else if (as_ > hs)  winnerABB = awayABB;
-    if (winnerABB) {
-      const loserABB = winnerABB === homeABB ? awayABB : homeABB;
-      updateRecord(winnerABB, loserABB);
+    if (safeStatus === "tie" || (safeStatus === "final" && hs === as_)) {
+      recordTie(homeABB, awayABB);
+    } else {
+      if (hs > as_)       winnerABB = homeABB;
+      else if (as_ > hs)  winnerABB = awayABB;
+      if (winnerABB) {
+        const loserABB = winnerABB === homeABB ? awayABB : homeABB;
+        updateRecord(winnerABB, loserABB);
+      }
     }
   }
 
