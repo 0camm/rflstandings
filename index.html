@@ -226,6 +226,7 @@ select.fc{
 .hr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
 .hr.st-final::before{background:var(--gr)}
 .hr.st-forfeit::before{background:var(--am)}
+.hr.st-tie::before{background:var(--bl)}
 .hr.st-incomplete::before{background:var(--mu2)}
 .hn{font-size:10px;color:var(--mu2);text-align:center;font-family:'JetBrains Mono',monospace}
 .hm{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
@@ -253,6 +254,7 @@ select.fc{
 .hbadge.final{background:var(--gr-d);color:var(--gr);border:1px solid rgba(28,122,62,.22)}
 .hbadge.forfeit{background:var(--am-d);color:var(--am);border:1px solid rgba(185,120,26,.22)}
 .hbadge.ot{background:var(--bl-d);color:var(--bl);border:1px solid rgba(42,94,168,.22)}
+.hbadge.tie{background:var(--bl-d);color:var(--bl);border:1px solid rgba(42,94,168,.22)}
 .hbadge.incomplete{background:var(--s3);color:var(--mu);border:1px solid var(--b)}
 .hdate{
   text-align:center;font-size:10px;color:var(--mu);white-space:nowrap;
@@ -354,7 +356,7 @@ select.fc{
 .rt{color:var(--mu);font-weight:700}
 .rp{color:var(--tx2);font-weight:600}
 .rstrk{text-align:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
-.rstrk.w{color:var(--win)}.rstrk.l{color:var(--lose)}.rstrk.n{color:var(--mu)}
+.rstrk.w{color:var(--win)}.rstrk.l{color:var(--lose)}.rstrk.t{color:var(--bl)}.rstrk.n{color:var(--mu)}
 
 /* ── REFEREE TABLE ── */
 .reftbl-wrap{overflow-x:auto;border-radius:11px;border:1px solid var(--b);background:var(--s1);position:relative;box-shadow:var(--shadow-sm);}
@@ -655,6 +657,7 @@ select.fc{
 .mbadge.final{background:var(--gr-d);color:var(--gr);border:1px solid rgba(28,122,62,.22)}
 .mbadge.forfeit{background:var(--am-d);color:var(--am);border:1px solid rgba(185,120,26,.22)}
 .mbadge.ot{background:var(--bl-d);color:var(--bl);border:1px solid rgba(42,94,168,.22)}
+.mbadge.tie{background:var(--bl-d);color:var(--bl);border:1px solid rgba(42,94,168,.22)}
 .mseason{font-size:10px;color:var(--mu);font-family:'JetBrains Mono',monospace}
 .mclose{
   background:var(--s3);border:1px solid var(--b);cursor:pointer;color:var(--mu);font-size:16px;line-height:1;
@@ -758,7 +761,7 @@ select.fc{
 
   /* ── Standings: card layout, every stat stays visible ── */
   .std-hd{
-    grid-template-columns:56px 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns:60px 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas:"lbl-blank lbl-w lbl-l lbl-t lbl-p lbl-s";
     padding:6px 12px;
   }
@@ -807,8 +810,8 @@ select.fc{
 }
 @media(max-width:400px){
   .hr{grid-template-columns:20px 1fr 50px}
-  .std-hd{grid-template-columns:44px 1fr 1fr 1fr 1fr}
-  .srow{grid-template-columns:22px 30px 1fr 1fr 1fr 1fr}
+  .std-hd{grid-template-columns:52px 1fr 1fr 1fr 1fr 1fr}
+  .srow{grid-template-columns:22px 30px 1fr 1fr 1fr 1fr 1fr}
 }
 @media(max-width:360px){
   .hero-h1{font-size:26px}
@@ -817,8 +820,8 @@ select.fc{
   .hm{gap:4px}
   .hm-logo{width:17px;height:17px}
   .hm-logo.nolog{width:17px;height:17px}
-  .std-hd{grid-template-columns:40px 1fr 1fr 1fr 1fr}
-  .srow{grid-template-columns:20px 28px 1fr 1fr 1fr 1fr}
+  .std-hd{grid-template-columns:48px 1fr 1fr 1fr 1fr 1fr}
+  .srow{grid-template-columns:20px 28px 1fr 1fr 1fr 1fr 1fr}
   .rlogo-img{width:22px;height:22px}
   .rlogo-img.nolog{width:22px;height:22px}
 }
@@ -1337,6 +1340,9 @@ let prevData=null,fails=0,lastId=null,allResults=[],pg=1,currentView='standings'
 let adminUnlocked=false,adminPassword='',currentAdminTab='games';
 let ARCHIVE=[],lastStandingsSnapshot=null,lastRefsSnapshot=null;
 
+// A "final" with equal scores counts as a tie in the standings (server does the same),
+// so the UI labels/filters it as a tie too. Also covers older results saved before ties existed.
+const effStatus=g=>{const st=(g.status||'final').toLowerCase();return(st==='final'&&g.homeScore!=null&&g.awayScore!=null&&Number(g.homeScore)===Number(g.awayScore))?'tie':st};
 const pct=(w,l,t)=>{t=t||0;const g=w+l+t;return g?((w+0.5*t)/g).toFixed(3).replace(/^0/,''):'—'};
 const fmtDate=iso=>{if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return'—';const diff=Math.floor((Date.now()-d)/86400000);if(diff===0)return'Today';if(diff===1)return'Yest.';if(diff<7)return`${diff}d ago`;return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})};
 const timeAgo=iso=>{if(!iso)return'';const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return`${s}s ago`;if(s<3600)return`${Math.floor(s/60)}m ago`;if(s<86400)return`${Math.floor(s/3600)}h ago`;return`${Math.floor(s/86400)}d ago`};
@@ -1369,7 +1375,7 @@ const getF=()=>{
   const tq=document.getElementById('f-team').value.trim().toLowerCase();
   const sq=document.getElementById('f-status').value;
   return allResults.filter(g=>{
-    if(sq&&(g.status||'').toLowerCase()!==sq)return false;
+    if(sq&&effStatus(g)!==sq)return false;
     if(tq){const a=(g.awayABB||'').toLowerCase(),h=(g.homeABB||'').toLowerCase();if(!a.includes(tq)&&!h.includes(tq))return false}
     return true;
   });
@@ -1390,14 +1396,14 @@ function renderHistory(){
   rowsEl.innerHTML=slice.map((g,i)=>{
     const num=filt.length-start-i;
     const hw=g.homeScore>g.awayScore,aw=g.awayScore>g.homeScore;
-    const st=(g.status||'final').toLowerCase();
+    const st=effStatus(g);
     const isVoided=!!g.voided;
     let bt=st.toUpperCase(),bc=st;
     if(st==='final'&&g.quarter==='OT'){bt='OT';bc='ot'}
     if(st==='incomplete')bt='—';
     if(st==='forfeit')bt='FORFEIT';
     if(isVoided){bt='VOIDED';bc='voided'}
-    const clk=(st==='final'||st==='forfeit')&&!isVoided;
+    const clk=(st==='final'||st==='forfeit'||st==='tie')&&!isVoided;
     return`<div class="hr st-${st}${clk?' clk':''} hr-aid${isVoided?' voided':''}" data-i="${start+i}" data-gid="${g.id}"${clk?' role="button" tabindex="0"':''}>
       <span class="hn">${num}</span>
       <span class="hm">
@@ -1453,7 +1459,7 @@ document.getElementById('pg-jump').addEventListener('change',e=>{
 function openModal(g){
   if(!g)return;
   const hw=g.homeScore>g.awayScore,aw=g.awayScore>g.homeScore;
-  const st=(g.status||'final').toLowerCase();
+  const st=effStatus(g);
   document.getElementById('m-matchup').innerHTML=`
     <div class="mteam">${logoImg(g.awayLogo,g.awayABB,'mteam-logo',36)}<span class="mabb">${g.awayABB||'?'}</span></div>
     <span class="mscore${aw?' w':''}">${g.awayScore??'—'}</span>
@@ -1506,7 +1512,7 @@ function flatToConfs(teams){
   return{eastern:e,western:[...w,...o]};
 }
 const sortT=arr=>[...arr].sort((a,b)=>{const pa=parseFloat(a.pct)||0,pb=parseFloat(b.pct)||0;if(pb!==pa)return pb-pa;const ga=a.w+a.l+(a.t||0),gb=b.w+b.l+(b.t||0);if(gb!==ga)return gb-ga;return b.w-a.w});
-const strk=raw=>!raw||raw==='—'?`<span class="rstrk n">—</span>`:`<span class="rstrk ${raw[0]==='W'?'w':'l'}">${raw}</span>`;
+const strk=raw=>!raw||raw==='—'?`<span class="rstrk n">—</span>`:`<span class="rstrk ${({W:'w',L:'l',T:'t'})[raw[0]]||'n'}">${raw}</span>`;
 
 function renderConfs(data){
   const el=document.getElementById('conferences');
@@ -1811,7 +1817,7 @@ function renderGamePicker(q){
   if(!src.length){list.innerHTML=`<div class="gp-empty">No games found.</div>`;return}
   const fmtDT=iso=>{if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return'—';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})};
   list.innerHTML=src.map((g,i)=>{
-    const st=(g.status||'final').toLowerCase();
+    const st=effStatus(g);
     const sc=(g.homeScore??'—')+' – '+(g.awayScore??'—');
     const badge=g.voided?'voided':st;
     return`<div class="gp-row" data-gp-i="${i}" tabindex="0" role="button">
@@ -1843,6 +1849,14 @@ function renderGamePicker(q){
 document.getElementById('gp-search').addEventListener('input',e=>renderGamePicker(e.target.value));
 
 /* ── ADD GAME ── */
+// Choosing "Tie": mirror whichever score was typed into the other box so the two always match.
+(()=>{
+  const st=document.getElementById('ag-status'),a=document.getElementById('ag-away-score'),h=document.getElementById('ag-home-score');
+  const sync=src=>{if(st.value!=='tie')return;(src===a?h:a).value=src.value};
+  a.addEventListener('input',()=>sync(a));
+  h.addEventListener('input',()=>sync(h));
+  st.addEventListener('change',()=>{if(st.value!=='tie')return;if(a.value!==''&&h.value==='')h.value=a.value;else if(h.value!==''&&a.value==='')a.value=h.value});
+})();
 document.getElementById('ag-away').addEventListener('input',function(){this.value=this.value.toUpperCase()});
 document.getElementById('ag-home').addEventListener('input',function(){this.value=this.value.toUpperCase()});
 
@@ -1858,7 +1872,10 @@ document.getElementById('ag-btn').addEventListener('click',async()=>{
   if(status!=='incomplete'&&(awayScore===''||homeScore==='')){showPanelMsg('ag-msg','Enter scores for Final/Tie/Forfeit results.','error');return}
   if(status==='tie'&&Number(awayScore)!==Number(homeScore)){showPanelMsg('ag-msg','A tie requires equal scores.','error');return}
   const scoreLine=status==='incomplete'?'(incomplete — no scores recorded)':`${awayScore||0}–${homeScore||0}`;
-  if(!confirm(`Add this game to the live standings?\n\n${away} @ ${home}\nScore: ${scoreLine}\nStatus: ${status.toUpperCase()}\n\n${status!=='incomplete'?"This will update both teams' win-loss-tie records immediately.":'No records will change since this is marked incomplete.'}`))return;
+  const isTieGame=status==='tie'||(status==='final'&&Number(awayScore)===Number(homeScore));
+  const dispStatus=isTieGame?'TIE':status.toUpperCase();
+  const effectMsg=status==='incomplete'?'No records will change since this is marked incomplete.':isTieGame?"This will record a tie (T) for both teams and update their win-loss-tie records immediately.":"This will update both teams' win-loss-tie records immediately.";
+  if(!confirm(`Add this game to the live standings?\n\n${away} @ ${home}\nScore: ${scoreLine}\nStatus: ${dispStatus}\n\n${effectMsg}`))return;
   const btn=document.getElementById('ag-btn');
   btn.disabled=true;btn.textContent='Adding…';
   try{
@@ -1866,9 +1883,9 @@ document.getElementById('ag-btn').addEventListener('click',async()=>{
       method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminPassword}`},
       body:JSON.stringify({awayABB:away,homeABB:home,awayScore:Number(awayScore)||0,homeScore:Number(homeScore)||0,status})
     });
-    if(!r.ok)throw new Error(`Server error ${r.status}`);
-    const data=await r.json();
-    showPanelMsg('ag-msg',`✓ Game added: ${away} ${data.result?.awayScore??''}–${data.result?.homeScore??''} ${home}`,'success');
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data?.error?`${data.error} (HTTP ${r.status})`:`Server error ${r.status}`);
+    showPanelMsg('ag-msg',`✓ Game added: ${away} ${data.result?.awayScore??''}–${data.result?.homeScore??''} ${home}${data.result?.status==='tie'?' (recorded as a tie)':''}`,'success');
     document.getElementById('ag-away').value='';
     document.getElementById('ag-home').value='';
     document.getElementById('ag-away-score').value='';
@@ -1953,7 +1970,7 @@ function renderTeamsList(){
       ${lg?`<img src="${lg}" alt="" style="width:30px;height:30px;object-fit:contain;flex-shrink:0">`:'<div style="width:30px;height:30px;border-radius:6px;background:var(--s3);flex-shrink:0"></div>'}
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nameLabel} <span style="color:var(--mu);font-weight:500">(${t.abb})</span></div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:2px">${confLabel}<span style="font-size:10px;color:var(--mu)">${t.wins||0}-${t.losses||0}</span></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:2px">${confLabel}<span style="font-size:10px;color:var(--mu)">${t.wins||0}-${t.losses||0}-${t.ties||0}</span></div>
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
         <button type="button" class="danger-btn" style="padding:6px 10px;font-size:11px;background:transparent;border:1px solid var(--b);color:var(--tx)" data-tm-edit="${t.abb}">Edit</button>
@@ -2048,7 +2065,7 @@ document.getElementById('void-btn').addEventListener('click',async()=>{
   if(!id){showPanelMsg('void-msg','Enter a game ID.','error');return}
   const g=allResults.find(x=>String(x.id)===String(id));
   const desc=g?`${g.awayABB} @ ${g.homeABB} (${g.awayScore}–${g.homeScore}, ${g.status})`:`game ID ${id}`;
-  if(!confirm(`Void this result?\n\n${desc}\n\nThis removes it from the win-loss calculation and recalculates standings from the remaining history. It stays in the history list marked as voided — it is not deleted.`))return;
+  if(!confirm(`Void this result?\n\n${desc}\n\nThis removes it from the win-loss-tie calculation and recalculates standings from the remaining history. It stays in the history list marked as voided — it is not deleted.`))return;
   document.getElementById('void-btn').disabled=true;
   try{
     const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/void'),{
@@ -2070,7 +2087,7 @@ document.getElementById('unvoid-btn').addEventListener('click',async()=>{
   if(!id){showPanelMsg('void-msg','Enter a game ID.','error');return}
   const g=allResults.find(x=>String(x.id)===String(id));
   const desc=g?`${g.awayABB} @ ${g.homeABB} (${g.awayScore}–${g.homeScore}, ${g.status})`:`game ID ${id}`;
-  if(!confirm(`Restore (unvoid) this result?\n\n${desc}\n\nThis adds it back into the win-loss calculation and recalculates standings to include it.`))return;
+  if(!confirm(`Restore (unvoid) this result?\n\n${desc}\n\nThis adds it back into the win-loss-tie calculation and recalculates standings to include it.`))return;
   document.getElementById('unvoid-btn').disabled=true;
   try{
     const r=await fetch(CFG.API.replace(/\/standings$/,'/standings/void'),{
@@ -2191,8 +2208,8 @@ async function fetchData(){
       const lat=data.results[0];
       if(lat?.id&&lat.id!==lastId&&prevData){
         lastId=lat.id;
-        const st=lat.status;
-        toast(`${lat.awayABB} @ ${lat.homeABB} — ${st==='final'?`${lat.awayScore}–${lat.homeScore} FINAL`:st==='forfeit'?'FORFEIT':st==='incomplete'?'NO RESULT':st.toUpperCase()}`,st==='forfeit'?'amber':'green',6000);
+        const st=effStatus(lat);
+        toast(`${lat.awayABB} @ ${lat.homeABB} — ${st==='final'?`${lat.awayScore}–${lat.homeScore} FINAL`:st==='tie'?`${lat.awayScore}–${lat.homeScore} TIE`:st==='forfeit'?'FORFEIT':st==='incomplete'?'NO RESULT':st.toUpperCase()}`,st==='forfeit'?'amber':'green',6000);
       }
       if(!lastId)lastId=data.results[0]?.id;
     }

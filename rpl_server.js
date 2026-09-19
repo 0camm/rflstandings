@@ -735,9 +735,15 @@ async function handleAddGame(req, res) {
   if (!homeABB || !awayABB || !status)
     return sendJSON(res, 422, { error: "Missing required fields: homeABB, awayABB, status" });
 
-  const safeStatus = ["final", "forfeit", "tie", "incomplete"].includes(status) ? status : "final";
+  let safeStatus = ["final", "forfeit", "tie", "incomplete"].includes(status) ? status : "final";
   const hs  = parseInt(homeScore, 10) || 0;
   const as_ = parseInt(awayScore, 10) || 0;
+
+  // A tie is defined by equal scores. Reject a "tie" whose scores differ, and store an
+  // equal-score "final" as a "tie" so the saved result matches how the standings count it.
+  if (safeStatus === "tie" && hs !== as_)
+    return sendJSON(res, 422, { error: "A tie requires equal scores." });
+  if (safeStatus === "final" && hs === as_) safeStatus = "tie";
 
   ensureTeam(homeABB);
   ensureTeam(awayABB);
